@@ -1,2 +1,5 @@
 fastapi
 uvicorn
+polars
+pytorch
+ollama
