@@ -1,6 +1,52 @@
+from dataclasses import dataclass
+
 import torch
 import torch.nn as nn
 from ml_factory.models import Args
+
+class BaseNormalAutoEncoder(nn.Module):
+    def __init__(self, input_dim: int, args: Args):
+        super().__init__()
+        if args.ae_bottleneck > 100:
+            raise AssertionError(f"bottleneck cannot be greater than 100, currently got: {args.ae_bottleneck}")
+
+        self.__encoder = nn.Sequential(
+                nn.Linear(input_dim, 512),
+                nn.SiLU(),
+                nn.Linear(512, 256),
+                nn.SiLU(),
+                nn.Linear(256, 100),
+                nn.SiLU(),
+                nn.Linear(100, args.ae_bottleneck),
+                nn.SiLU()
+        )
+
+
+        self.__decoder = nn.Sequential(
+                nn.Linear(args.ae_bottleneck, 100),
+                nn.SiLU(),
+                nn.Linear(100, 256),
+                nn.SiLU(),
+                nn.Linear(256, 512),
+                nn.SiLU(),
+                nn.Linear(512,input_dim)
+                )
+
+
+
+    def forward(self,X: torch.Tensor):
+        X = self.encode(X)
+        return self.decode(X), X
+
+    def encode(self, X: torch.Tensor):
+        return self.__encoder(X)
+
+    def decode(self, encoded_X: torch.Tensor):
+        return self.__decoder(encoded_X)
+
+###############################################################
+
+
 
 
 class MLP(nn.Module):
@@ -21,11 +67,17 @@ class MLP(nn.Module):
     def forward(self, X: torch.Tensor) -> torch.Tensor:
         return self.model(X)
 
+@dataclass
+class NormalityResult:
+    recon: torch.Tensor
+    experts: torch.Tensor
+    bottleneck: torch.Tensor
+    router: torch.Tensor
 
 class NormalityAE(nn.Module):
-    def __init__(self, args: Args):
+    def __init__(self, input_dim: int, args: Args):
         super().__init__()
-        dims = [args.ae_input_dim, 512, 256, 128]
+        dims = [input_dim, 512, 256, args.ae_bottleneck]
         self.k_expert = args.expert_k
         self.n_experts = args.n_experts
 
@@ -60,7 +112,9 @@ class NormalityAE(nn.Module):
         combined = (gathered * weights.unsqueeze(-1)).sum(dim=1)  # (batch, ae_bottleneck)
 
         recon = self.decoder(combined)
-        return recon, all_expert_out  # return all expert outs once, for diversity loss
-
+        return NormalityResult(recon=recon, experts=all_expert_out, bottleneck=combined, router=router_logits)
+    
+    def __call__(self, *args, **kwargs) -> NormalityResult:
+        return super().__call__(*args, **kwargs)
     def encode(self, X: torch.Tensor):
         return self.encoder(X)
