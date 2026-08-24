@@ -3,3 +3,4 @@ uvicorn
 polars
 pytorch
 ollama
+scikit-learn
