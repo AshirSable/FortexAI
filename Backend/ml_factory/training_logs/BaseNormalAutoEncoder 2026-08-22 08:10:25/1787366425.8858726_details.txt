@@ -1,0 +1,21 @@
+
+MODEL NAME: BaseNormalAutoEncoder (attack)
+Test Loss: 0.4203298693505403
+Test Attack Loss: 0.02570043323195983 (+should be higher)
+Test Benign Loss: 0.39462950519312207
+Training Time Started: 2026-08-22 08:10:25
+Time Taken: 527.5844261646271 seconds
+
+
+# Parameters
+EPOCHS: 200
+EMBEDDING_MODEL: nomic-embed-text
+SEED: 3123
+TRAIN_RATIO: 0.7
+VALIDATION_RATIO: 0.15
+TEST_RATIO: 0.15
+BATCH_SIZE: 128
+ATTACK_RATIO: 0.2
+
+DATASET: /home/clyde/Documents/FortexAI/Backend/ml_factory/data/processed/processed_final_data_nomic-embed-text.npz
+        

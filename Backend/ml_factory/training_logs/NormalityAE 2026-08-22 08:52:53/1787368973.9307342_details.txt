@@ -1,0 +1,21 @@
+
+MODEL NAME: NormalityAE (attack)
+Test Loss: 0.4703633673837252
+Test Attack Loss: 0.02394978353910357 (+should be higher)
+Test Benign Loss: 0.44641373536297096
+Training Time Started: 2026-08-22 08:52:53
+Time Taken: 4180.567641735077 seconds
+
+
+# Parameters
+EPOCHS: 200
+EMBEDDING_MODEL: nomic-embed-text
+SEED: 3123
+TRAIN_RATIO: 0.7
+VALIDATION_RATIO: 0.15
+TEST_RATIO: 0.15
+BATCH_SIZE: 128
+ATTACK_RATIO: 0.2
+
+DATASET: /home/clyde/Documents/FortexAI/Backend/ml_factory/data/processed/processed_final_data_nomic-embed-text.npz
+        

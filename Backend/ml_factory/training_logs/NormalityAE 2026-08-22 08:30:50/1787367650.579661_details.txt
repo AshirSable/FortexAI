@@ -1,0 +1,17 @@
+
+MODEL NAME: NormalityAE
+Test Loss: 0.3127956312186647
+Training Time Started: 2026-08-22 08:30:50
+Time Taken: 1319.2587139606476 seconds
+
+# Parameters
+EPOCHS: 200
+EMBEDDING_MODEL: nomic-embed-text
+SEED: 3123
+TRAIN_RATIO: 0.7
+VALIDATION_RATIO: 0.15
+TEST_RATIO: 0.15
+BATCH_SIZE: 128
+
+DATASET: /home/clyde/Documents/FortexAI/Backend/ml_factory/data/processed/processed_benign_only_nomic-embed-text.npz
+        
