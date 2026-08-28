@@ -4,3 +4,7 @@ polars
 pytorch
 ollama
 scikit-learn
+pydantic
+pytest
+pandas
+pyarrow
