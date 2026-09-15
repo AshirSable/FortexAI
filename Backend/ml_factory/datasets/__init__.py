@@ -10,9 +10,11 @@ from torch.utils.data import Dataset
 from ml_factory.datasets.tokenizer import TokenizerConfig
 from ml_factory.datasets.utils import (
     CHUNK_ID_NAME,
+    EMBEDDING_NAME,
     ID_NAME,
     LABELS_NAME,
     NUM_CHUNK_NAME,
+    STRUCTURAL_NAME,
     TEXT_NAME,
     TOKENIZED_NAME,
 )
@@ -70,21 +72,22 @@ class PromptBERTDataset(Dataset):
         self.attention_mask = self.tokenized != self.config.pad_token_id
 
     def __make_npz_file(self, npz_path: Path, config_path: Optional[Path] = None):
+
         data = np.load(npz_path, allow_pickle=True)
 
         has_chunks = False
         chunk_idx = None
         num_chunks = None
-        if "chunk_idx" in data and "num_chunks" in data:
+        if CHUNK_ID_NAME in data and NUM_CHUNK_NAME in data:
             has_chunks = True
-            num_chunks = data["num_chunks"]
-            chunk_idx = data["chunk_idx"]
+            num_chunks = data[NUM_CHUNK_NAME]
+            chunk_idx = data[CHUNK_ID_NAME]
 
-        self.ids = data["ids"]
-        self.ids_str = [str(i) for i in data["ids"]]
-        self.tokenized = torch.from_numpy(data["tokenized"]).long()
-        self.text = data["text"]
-        self.labels = torch.from_numpy(data["labels"]).long()
+        self.ids = data[ID_NAME]
+        self.ids_str = [str(i) for i in data[ID_NAME]]
+        self.tokenized = torch.from_numpy(data[TOKENIZED_NAME]).long()
+        self.text = data[TEXT_NAME]
+        self.labels = torch.from_numpy(data[LABELS_NAME]).long()
         self.chunk_idx = chunk_idx
         self.num_chunks = num_chunks
         self.has_chunks = has_chunks
@@ -124,14 +127,23 @@ class PromptBERTDataset(Dataset):
 
 
 class PromptFeatureDataset(Dataset):
-    def __init__(self, npz_path):
-        data = np.load(npz_path, allow_pickle=True)
-        self.ids = [str(i) for i in data["ids"]]
-        self.embeddings = torch.from_numpy(data["embeddings"]).float()
-        self.labels = torch.from_numpy(data["labels"]).long()
+    def __init__(self, path: Path | str):
+        path = Path(path)
+        if path.is_file() and path.suffix == ".npz":
+            self.__make_npz_data(path)
 
-        if "structural" in data.files:
-            self.structural = torch.from_numpy(data["structural"]).float()
+        elif path.exists() and path.is_dir():
+            self.__make_dir_data(path)
+
+    def __make_npz_data(self, npz_path: Path) -> None:
+        data = np.load(npz_path, allow_pickle=True)
+        self.ids = data[ID_NAME]
+        self.ids_str = [str(i) for i in data[ID_NAME]]
+        self.embeddings = torch.from_numpy(data[EMBEDDING_NAME]).float()
+        self.labels = torch.from_numpy(data[LABELS_NAME]).long()
+
+        if STRUCTURAL_NAME in data.files:
+            self.structural = torch.from_numpy(data[STRUCTURAL_NAME]).float()
             self.features = torch.cat([self.embeddings, self.structural], dim=1)
 
         else:
@@ -139,12 +151,34 @@ class PromptFeatureDataset(Dataset):
             self.features = self.embeddings
 
         self.id_to_pos = {item_id: pos for pos, item_id in enumerate(self.ids)}
-        reserved = {"ids", "embeddings", "labels", "structural"}
+        reserved = {ID_NAME, EMBEDDING_NAME, LABELS_NAME, STRUCTURAL_NAME}
         self.extra = {key: data[key] for key in data.files if key not in reserved}
+
+    def __make_dir_data(self, data_dir: Path) -> None:
+
+        self.ids = np.load(data_dir / f"{ID_NAME}.npy", mmap_mode="r")
+        self.embeddings = np.load(data_dir / f"{EMBEDDING_NAME}.npy", mmap_mode="r")
+        self.labels = np.load(data_dir / f"{LABELS_NAME}.npy", mmap_mode="r")
+        has_structural = (data_dir / f"{STRUCTURAL_NAME}.npy").exists()
+
+        self.has_structural = has_structural
+
+        if has_structural:
+            self.structural = np.load(
+                data_dir / f"{STRUCTURAL_NAME}.npy", mmap_mode="r"
+            )
+            self.features = np.concatenate([self.embeddings, self.structural], axis=1)
+
+        else:
+            self.structural = None
+            self.features = self.embeddings
+
+        self.ids_str = [str(i) for i in self.ids]
+        self.id_to_pos = {item_id: pos for pos, item_id in enumerate(self.ids)}
 
     @property
     def item_ids(self):
-        return self.ids
+        return self.ids_str
 
     def ids_to_positions(self, id_list):
         return [self.id_to_pos[str(i)] for i in id_list]
