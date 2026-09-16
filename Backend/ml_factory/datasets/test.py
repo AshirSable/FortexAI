@@ -60,8 +60,11 @@ def trying_bert_dataset():
 
     train_dataset = Subset(dataset, dataset.ids_to_position(sampler.get_split("train")))
 
-    sampler.save_split()
-    print(dataset[0])
+    train_loader = DataLoader(train_dataset)
+
+    for data in train_loader:
+        print(data)
+        break
 
 
 def build_parquet_file(file: Path, exists_run: bool = False) -> Path:
