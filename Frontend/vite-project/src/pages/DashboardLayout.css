@@ -1,0 +1,21 @@
+.dashboard-shell {
+  display: flex;
+  min-height: 100vh;
+  background: #070a10;
+  background-image:
+    radial-gradient(ellipse 900px 500px at 15% -10%, rgba(63, 216, 255, 0.06), transparent),
+    radial-gradient(ellipse 700px 500px at 100% 20%, rgba(79, 127, 255, 0.05), transparent);
+}
+
+.dashboard-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-content {
+  flex: 1;
+  padding: 30px 36px 64px;
+  overflow-x: hidden;
+}

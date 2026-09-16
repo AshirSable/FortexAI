@@ -12,6 +12,7 @@ sample of a given size and runs it through guardrails.evaluate_with_guardrails()
 """
 import argparse
 import csv
+import json
 import time
 from pathlib import Path
 
@@ -121,6 +122,71 @@ def print_summary(results: list[dict]) -> None:
             print(f"    ... and {len(false_positives) - 15} more (see CSV)")
 
 
+def compute_metrics(results: list[dict]) -> dict:
+    """Binary metrics with `malicious` as the positive class. The judge can also
+    answer `uncertain` (escalate to a human); it's reported as its own bucket
+    and, for recall, also credited as "not silently missed"."""
+    def n(expected, predicted):
+        return sum(
+            1 for r in results
+            if r["expected_verdict"] == expected and r["model_verdict"] == predicted
+        )
+
+    tp = n("malicious", "malicious")
+    fn = n("malicious", "benign")
+    mal_uncertain = n("malicious", "uncertain")
+    fp = n("benign", "malicious")
+    tn = n("benign", "benign")
+    ben_uncertain = n("benign", "uncertain")
+
+    total = len(results)
+    n_mal = tp + fn + mal_uncertain
+    n_ben = fp + tn + ben_uncertain
+    correct = sum(r["correct"] for r in results)
+
+    precision = tp / (tp + fp) if (tp + fp) else 0.0
+    recall_strict = tp / n_mal if n_mal else 0.0
+    recall_with_escalation = (tp + mal_uncertain) / n_mal if n_mal else 0.0
+    f1 = (2 * precision * recall_strict / (precision + recall_strict)
+          if (precision + recall_strict) else 0.0)
+    tnr = tn / n_ben if n_ben else 0.0
+    balanced_acc = (recall_strict + tnr) / 2
+
+    return {
+        "n_total": total,
+        "n_malicious": n_mal,
+        "n_benign": n_ben,
+        "accuracy": correct / total if total else 0.0,
+        "balanced_accuracy": balanced_acc,
+        "precision_malicious": precision,
+        "recall_malicious_strict": recall_strict,
+        "recall_malicious_with_escalation": recall_with_escalation,
+        "f1_malicious": f1,
+        "specificity_benign": tnr,
+        "confusion_matrix": {
+            "malicious_expected": {"malicious": tp, "benign": fn, "uncertain": mal_uncertain},
+            "benign_expected": {"malicious": fp, "benign": tn, "uncertain": ben_uncertain},
+        },
+    }
+
+
+def print_metrics(m: dict) -> None:
+    print("\n===== METRICS (positive class = malicious) =====")
+    print(f"  Samples:            {m['n_total']}  ({m['n_malicious']} malicious / {m['n_benign']} benign)")
+    print(f"  Accuracy:           {m['accuracy']:.4f}")
+    print(f"  Balanced accuracy:  {m['balanced_accuracy']:.4f}")
+    print(f"  Precision:          {m['precision_malicious']:.4f}")
+    print(f"  Recall (strict):    {m['recall_malicious_strict']:.4f}")
+    print(f"  Recall (+escalate): {m['recall_malicious_with_escalation']:.4f}")
+    print(f"  F1:                 {m['f1_malicious']:.4f}")
+    print(f"  Specificity:        {m['specificity_benign']:.4f}")
+    cm = m["confusion_matrix"]
+    print("\n  Confusion matrix          pred:malicious  pred:benign  pred:uncertain")
+    me, be = cm["malicious_expected"], cm["benign_expected"]
+    print(f"    expected malicious {me['malicious']:>14}  {me['benign']:>11}  {me['uncertain']:>14}")
+    print(f"    expected benign    {be['malicious']:>14}  {be['benign']:>11}  {be['uncertain']:>14}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("parquet_path", type=Path)
@@ -132,7 +198,15 @@ def main() -> None:
     df = load_and_sample(args.parquet_path, args.sample_size, args.seed)
     results = run_evaluation(df, args.output_csv)
     print_summary(results)
+
+    metrics = compute_metrics(results)
+    print_metrics(metrics)
+    metrics_path = args.output_csv.with_suffix(".metrics.json")
+    with open(metrics_path, "w") as f:
+        json.dump(metrics, f, indent=2)
+
     print(f"\nWrote {len(results)} rows to {args.output_csv}")
+    print(f"Wrote metrics to {metrics_path}")
 
 
 if __name__ == "__main__":

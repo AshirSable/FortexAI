@@ -8,3 +8,7 @@ pydantic
 pytest
 pandas
 pyarrow
+faiss-cpu
+bcrypt
+PyJWT
+sqlalchemy

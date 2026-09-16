@@ -1,5 +1,6 @@
 import base64
 import codecs
+import os
 import re
 import secrets
 
@@ -108,12 +109,20 @@ def isolate_input(text: str, context: str | None = None, style: str = "boundary"
     return block
 
 
-def _evaluate_isolated(text: str, context: str | None, style: str) -> Verdict:
-    return judge.evaluate_prompt(isolate_input(text, context, style=style))
+def _evaluate_isolated(text: str, context: str | None, style: str, strict: bool = False) -> Verdict:
+    return judge.evaluate_prompt(isolate_input(text, context, style=style), strict=strict)
+
+
+def _default_self_consistency() -> bool:
+    """Two-pass self-consistency defaults ON, but can be turned off with
+    LLM_JUDGE_SELF_CONSISTENCY=0 - halves the call count, which matters against
+    a rate-limited cloud backend (Groq free tier)."""
+    return os.getenv("LLM_JUDGE_SELF_CONSISTENCY", "1").lower() not in ("0", "false", "no", "")
 
 
 def evaluate_with_guardrails(
-    text: str, context: str | None = None, self_consistency: bool = True
+    text: str, context: str | None = None, self_consistency: bool | None = None,
+    strict: bool = False,
 ) -> Verdict:
     """Judge `text` through the input-isolation wrapper, decoding any hidden
     base64/ROT13 payloads and checking those too, optionally requiring two
@@ -127,9 +136,17 @@ def evaluate_with_guardrails(
     disagreement, returns "uncertain" rather than picking a side - the point
     is to catch verdicts that are sensitive to superficial framing, not to
     average them away.
+
+    `self_consistency=None` (the default) reads LLM_JUDGE_SELF_CONSISTENCY from
+    the environment; pass an explicit bool to override. `strict=True` propagates
+    to `judge.evaluate_prompt` - backend-unreachable raises instead of failing
+    safe, for evaluation harnesses that need to retry rather than mis-score.
     """
+    if self_consistency is None:
+        self_consistency = _default_self_consistency()
+
     for payload in find_hidden_payloads(text):
-        decoded_verdict = _evaluate_isolated(payload, None, style="boundary")
+        decoded_verdict = _evaluate_isolated(payload, None, style="boundary", strict=strict)
         if decoded_verdict.verdict == VerdictLabel.MALICIOUS:
             return Verdict(
                 verdict=VerdictLabel.MALICIOUS,
@@ -140,12 +157,12 @@ def evaluate_with_guardrails(
                 ),
             )
 
-    first_pass = _evaluate_isolated(text, context, style="boundary")
+    first_pass = _evaluate_isolated(text, context, style="boundary", strict=strict)
 
     if not self_consistency:
         return first_pass
 
-    second_pass = _evaluate_isolated(text, context, style="prose")
+    second_pass = _evaluate_isolated(text, context, style="prose", strict=strict)
 
     if first_pass.verdict != second_pass.verdict:
         return Verdict(

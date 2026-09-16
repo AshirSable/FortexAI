@@ -2,48 +2,41 @@
 
 Final stage of FortexAI's prompt-injection detection cascade. Content that earlier,
 cheaper stages have already flagged as suspicious is passed here to a local LLM
-(`qwen3guard-gen:4b` via Ollama) for a structured verdict: `malicious`, `benign`, or
-`uncertain`.
+(`llama3.1:8b-instruct-q4_K_M` via Ollama) for a structured verdict: `malicious`,
+`benign`, or `uncertain`.
 
-The model has its own chat template baked into the GGUF file that overrides any
-system prompt or JSON-schema output we ask for, so `judge.py` lets it answer in its
-own native safety-classification format (`Safety: Safe/Unsafe/Controversial` +
-`Categories: ...`) and parses that in Python - "Jailbreak" is the model's own
-category name for instruction-hijacking, which maps to `malicious`. Full
-investigation in `CLAUDE.md` section 5.
+The judge sends the model a system prompt describing the task plus one worked
+few-shot example, and forces a JSON-schema response (`schema.Verdict`). It fails
+safe to `malicious` on any error rather than silently passing content through.
+`CLAUDE.md` has the full design rationale and history (including why the module
+switched off its original `qwen3guard-gen:4b` model — read Section 5 before changing
+`judge.py`, `prompt.py`, or `guardrails.py`).
 
 ## Status
 
 | File | Purpose | Status |
 |---|---|---|
 | `schema.py` | Pydantic `Verdict` model (`verdict`, `confidence`, `reason`) | done |
-| `prompt.py` | Builds the plain user message sent to the model (no system prompt, no few-shot injection into the live call) | done |
-| `config.py` | `MODEL_NAME` / `OLLAMA_HOST` / timeout, all env-var overridable | done |
-| `judge.py` | `evaluate_prompt(text, context)` - calls Ollama, parses the model's native `Safety:`/`Categories:` output, maps `Categories: Jailbreak` to `malicious`; fails safe to `malicious` on timeout/error/unparseable output | done |
+| `prompt.py` | Builds the chat messages: `SYSTEM_PROMPT` + one worked few-shot turn + the flagged content | done |
+| `config.py` | `LLM_JUDGE_MODEL` / `OLLAMA_HOST` / `LLM_JUDGE_TIMEOUT_SECONDS`, all env-var overridable | done |
+| `judge.py` | `evaluate_prompt(text, context)` — Ollama call with forced JSON schema + `temperature=0`; fails safe to `malicious` (confidence 0.0) on timeout / connection error / Ollama error / schema-invalid output | done |
 | `guardrails.py` | Recommended entry point. Input isolation, hidden base64/ROT13 payload decoding, two-pass self-consistency check (on by default) | done |
-| `tests/test_judge.py` | Unit tests for `judge.py`, Ollama call mocked | done |
-| `data/few_shot_examples.json` | Labeled reference examples for `evaluate.py` (no longer injected into the live prompt) | done (placeholders) |
-| `throwaway_ollama_test.py` | One-off script confirming Ollama + the model return a valid parsed `Verdict` | done, delete after use |
-| `evaluate.py` | Runs `guardrails.evaluate_with_guardrails()` over `data/labeled_test_set.json`, reports accuracy/false-positive/false-negative breakdown, writes `evaluation_results.csv` | done |
-| `data/labeled_test_set.json` | 100 hand-written labeled prompts (45 malicious / 45 benign / 10 ambiguous) across a range of injection styles | done |
-| `canary_test.py` | Known-bad prompts that must always be flagged | stub |
-| `data/canary_set.json` | Canary prompts | placeholder (empty) |
+| `evaluate.py` | Runs `guardrails.evaluate_with_guardrails()` over `data/labeled_test_set.json`, reports accuracy/false-positive/false-negative breakdown, writes `evaluation_results.csv` (git-ignored) | done |
+| `evaluate_parquet.py` | Same, for larger external datasets in parquet form (`text` + `label` columns); dedupes, class-balanced sample, writes `parquet_evaluation_results.csv` (git-ignored) | done |
+| `data/labeled_test_set.json` | 100 hand-written labeled prompts (45 malicious / 45 benign / 10 ambiguous) across ~19 injection categories | done |
+| `canary_test.py` + `data/canary_set.json` | Regression suite — 12 already-confirmed cases checked one at a time; `known_issue: true` entries (2) are reported but don't fail the run | done |
+| `tests/test_judge.py` | 8 unit tests for `judge.py`, Ollama call mocked | done |
 
-## Current accuracy
+## Accuracy
 
-Latest run of `python evaluate.py` against the 100 labeled prompts (2026-08-08):
+The last committed measurement — **93/100 overall, 45/45 benign (zero false
+positives), 0 dangerous false negatives** — was taken against the module's
+*previous* model (`qwen3guard-gen:4b`). The current `llama3.1:8b-instruct-q4_K_M` +
+few-shot configuration has **not** had a fresh evaluation committed yet
+(`evaluation_results.csv` is regenerated, not tracked).
 
-| | Result |
-|---|---|
-| Overall | 93/100 (93%) |
-| Benign correctly left alone | 45/45 (100%) - zero false positives |
-| Malicious caught cleanly | 43/45 (95.6%) |
-| Dangerous false negatives (malicious silently called benign) | **0** |
-
-The 2 remaining malicious prompts land on `uncertain` (escalated for review), not a
-silent `benign`. Full root-cause history and reasoning for every fix live in
-`CLAUDE.md` section 5 - read that before changing `judge.py` or `guardrails.py`.
-Per-prompt results are in `evaluation_results.csv`.
+Run `python evaluate.py` against a live model for current numbers, and see
+`CLAUDE.md` Section 5 for the full root-cause history behind every design choice.
 
 ## Setup
 
@@ -56,7 +49,8 @@ pip install -r requirements.txt
 ```
 
 This installs `ollama` (Python client) and `pydantic` alongside the rest of the
-backend's dependencies.
+backend's dependencies. `pandas` / `pyarrow` (used by `evaluate_parquet.py`) are
+in there too.
 
 ### Install Ollama
 
@@ -73,47 +67,26 @@ curl http://localhost:11434/api/version
 
 ### Pull the judge model
 
-`qwen3guard-gen:4b` is **not** in Ollama's own registry - only Qwen3Guard's 0.6B
-variant is (`sileader/qwen3guard:0.6b`). The 4B generative variant
-(`Qwen/Qwen3Guard-Gen-4B`) is only published on Hugging Face, so we pull a
-community GGUF quantization from there and alias it to the name the rest of
-this module expects:
-
 ```bash
-ollama pull hf.co/mradermacher/Qwen3Guard-Gen-4B-GGUF:Q4_K_M
-ollama cp hf.co/mradermacher/Qwen3Guard-Gen-4B-GGUF:Q4_K_M qwen3guard-gen:4b
+ollama pull llama3.1:8b-instruct-q4_K_M
 ```
 
-~2.7GB download. Everyone on the team should run these same two commands so
-`qwen3guard-gen:4b` resolves consistently everywhere.
-
-Confirm it's registered:
-
-```bash
-ollama list   # should show qwen3guard-gen:4b
-```
-
-### Confirm the model returns a valid, parseable verdict
-
-From `Backend/LLM_Judge/` (with the venv active):
+~4.7 GB download. Everyone on the team should pull this exact tag so results are
+comparable — `CLAUDE.md` Section 5 shows how sensitive this module is to the exact
+model build. Confirm it's registered:
 
 ```bash
-python throwaway_ollama_test.py
+ollama list   # should show llama3.1:8b-instruct-q4_K_M
 ```
-
-Runs `judge.evaluate_prompt()` on one sample flagged prompt and prints the
-resulting `Verdict`, or a clear error if Ollama/the model isn't reachable. Delete
-this script once you've confirmed setup works - it's not part of the module.
 
 ## Configuration
 
 All of `config.py` is overridable via environment variables so the model can be
-swapped (e.g. dev's 0.6B/4B GGUF -> a promoted production model) with no code
-change:
+swapped with no code change:
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `LLM_JUDGE_MODEL` | `qwen3guard-gen:4b` | Model name passed to Ollama |
+| `LLM_JUDGE_MODEL` | `llama3.1:8b-instruct-q4_K_M` | Model name passed to Ollama |
 | `OLLAMA_HOST` | unset (client's own default, `http://localhost:11434`) | Ollama server to call |
 | `LLM_JUDGE_TIMEOUT_SECONDS` | `30` | Per-request timeout before failing safe |
 
@@ -136,23 +109,25 @@ verdict = guardrails.evaluate_with_guardrails(flagged_text, context=optional_con
 verdict = guardrails.evaluate_with_guardrails(flagged_text, self_consistency=False)
 ```
 
-`verdict` is always a `schema.Verdict` - `judge.evaluate_prompt` never raises for
+`verdict` is always a `schema.Verdict` — `judge.evaluate_prompt` never raises for
 timeouts, connection errors, or malformed model output; it fails safe to
-`verdict="malicious", confidence=0.0` with a `reason` explaining what went wrong,
-so a broken judge escalates for manual review instead of silently waving content
+`verdict="malicious", confidence=0.0` with a `reason` explaining what went wrong, so
+a broken judge escalates for manual review instead of silently waving content
 through as benign.
 
 ## Running tests
 
 ```bash
-source ../venv/bin/activate   # from Backend/LLM_Judge/
+source ../venv/bin/activate            # from Backend/LLM_Judge/
 python -m pytest tests/test_judge.py -v
 ```
 
-Use `python -m pytest` (not the bare `pytest` executable) run from
-`Backend/LLM_Judge/` - there's no `tests/__init__.py`, so pytest needs the current
-working directory on `sys.path` to resolve `import judge`. Tests mock the Ollama
-call entirely and don't require a running model.
+Tests mock the Ollama call entirely and don't require a running model.
 
-To measure actual judgment quality (requires a running model), run
-`python evaluate.py` - see "Current accuracy" above.
+To measure actual judgment quality (requires a running model):
+
+```bash
+python evaluate.py        # 100-prompt labeled set -> evaluation_results.csv
+python canary_test.py     # regression suite; exits non-zero on any real regression
+python evaluate_parquet.py <file.parquet> [--sample-size 500] [--seed 42]
+```

@@ -1,0 +1,39 @@
+.donut-chart-card {
+  background: linear-gradient(180deg, rgba(21, 27, 38, 0.7), rgba(15, 19, 28, 0.7));
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 16px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 20px 40px rgba(0, 0, 0, 0.25);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.donut-chart-title {
+  font-size: 15px;
+  font-weight: 700;
+  align-self: flex-start;
+  margin-bottom: 18px;
+}
+
+.donut-chart-legend {
+  display: flex;
+  gap: 22px;
+  margin-top: 16px;
+  font-size: 12.5px;
+}
+
+.donut-chart-legend-item {
+  text-align: center;
+  cursor: default;
+}
+
+.donut-chart-legend-value {
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.donut-chart-legend-label {
+  color: #5b6472;
+}

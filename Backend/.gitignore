@@ -1,0 +1,6 @@
+
+Backend/venv/
+**/node_modules/
+__pycache__/
+.DS_Store
+auth/auth.db
