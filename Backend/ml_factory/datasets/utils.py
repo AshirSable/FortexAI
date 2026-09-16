@@ -10,6 +10,8 @@ ID_NAME = "ids"
 CHUNK_ID_NAME = "chunk_idx"
 NUM_CHUNK_NAME = "num_chunks"
 TEXT_NAME = "text"
+EMBEDDING_NAME = "embedding"
+STRUCTURAL_NAME = "structural"
 
 
 def read_file_to_lazy(file: Path | str) -> Optional[pl.LazyFrame]:
