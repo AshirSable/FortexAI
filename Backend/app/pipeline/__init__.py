@@ -10,8 +10,14 @@
 from abc import ABC, abstractmethod
 from dataclasses import replace
 
-from app.type_store import Phase, PhaseInput, Result, SuccessForReview, SuccessReturn, Verdict
-
+from app.type_store import (
+    Phase,
+    PhaseInput,
+    Result,
+    SuccessForReview,
+    SuccessReturn,
+    Verdict,
+)
 from app.type_store._error import PhaseError
 
 
@@ -50,8 +56,16 @@ class Pipeline:
             last_result = result
             success = result.unwrap()
 
+            # TODO: The data should pass if auto-encoder detects it as an attack, as then it would be passed to the further stages
+            # The pipeline should stop if auto-encoder calls it normal
+
+            # TODO: If the models ahead of the Auto-encoder classify a text as normal, it must be saved in the allowed prompts
+            # we need to do an analysis comparing latency vs storage for deciding in which phase we should save in the allowed prompts database
             if success.verdict != Verdict.undetermined:
                 # this stage made a call - the cascade stops here.
+                # BUG: The cascade stopping criteria as not as discussed
+                # It should stop when malicious in stage "semantic search", "bert", "llm judge"
+                # it should stop when benign in auto encoder
                 return result
 
             # this stage had no opinion - remember its result and move on to

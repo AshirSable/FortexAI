@@ -23,20 +23,28 @@ from pathlib import Path
 
 import numpy as np
 import torch
-
+from ml_factory import MODEL_DIRECTORY_RELEASED
 from ml_factory.models import Args
 from ml_factory.models.autoencoder import NormalityAE
+from ml_factory.utils.scaler import StandardScaler
 from ml_factory.utils.structural_extractor import StructuralExtractor
 
 from app.pipeline import PipelinePhase
 from app.pipeline.utils import embed_text
-from app.type_store import Err, Ok, Phase, PhaseInput, Result, SuccessForReview, SuccessReturn, Verdict
+from app.type_store import (
+    Err,
+    Ok,
+    Phase,
+    PhaseInput,
+    Result,
+    SuccessForReview,
+    SuccessReturn,
+    Verdict,
+)
 from app.type_store._error import InferenceError, ModelUnavailableError, PhaseError
 
 # the only autoencoder checkpoint currently in the repo (added 2026-09-17).
-MODEL_PATH = (
-    Path(__file__).resolve().parents[2] / "ml_factory" / "model_file" / "NormalityAE_1788973962.4063935.pt"
-)
+MODEL_PATH = MODEL_DIRECTORY_RELEASED / "NormalityAE_1788973962.4063935.pt"
 
 # matches the checkpoint's tensor shapes exactly (see summary): a 768-dim
 # embedding plus 9 structural features, 8 experts, top-2 bottleneck of 64.
@@ -47,9 +55,11 @@ AE_INPUT_DIM = EMBEDDING_DIM + 9
 AE_ARGS = Args(ae_bottleneck=64, n_experts=8, expert_k=2)
 
 # GUESSED, not calibrated - see module docstring.
-LOW_ERROR_THRESHOLD = 0.05  # reconstruction error at or below this -> benign
-HIGH_ERROR_THRESHOLD = 0.15  # reconstruction error at or above this -> attack
+LOW_ERROR_THRESHOLD = 0.05  # reconstruction error at or below this -> benign # BUG: Needs to be calibrated
+HIGH_ERROR_THRESHOLD = 0.15  # reconstruction error at or above this -> attack # BUG: Needs to be calibrated
 # anything in between -> undetermined, pass to the next stage
+
+# TODO: Need to calibrate the low error and high error threshold for this model
 
 
 class AutoEncoderPipeline(PipelinePhase):
@@ -62,11 +72,14 @@ class AutoEncoderPipeline(PipelinePhase):
         super().__init__(phase=Phase.autoencoder)
 
         if not Path(model_path).is_file():
-            raise ModelUnavailableError(f"autoencoder checkpoint not found at {model_path}")
+            raise ModelUnavailableError(
+                f"autoencoder checkpoint not found at {model_path}"
+            )
 
         self.low_error_threshold = low_error_threshold
         self.high_error_threshold = high_error_threshold
         self.structural_extractor = StructuralExtractor()
+        self.standard_scaler = StandardScaler.load()
 
         self.model = NormalityAE(input_dim=AE_INPUT_DIM, args=AE_ARGS)
         checkpoint = torch.load(model_path, map_location="cpu", weights_only=False)
@@ -79,11 +92,16 @@ class AutoEncoderPipeline(PipelinePhase):
             embedding = embed_text(text)
 
         embedding = np.array(embedding, dtype="float32")
-        structural = np.array(self.structural_extractor.structural_fn(text), dtype="float32")
+        structural = np.array(
+            self.structural_extractor.structural_fn(text), dtype="float32"
+        )
         full_vector = np.concatenate([embedding, structural])
 
+        full_vector = torch.from_numpy(full_vector)
+        full_vector = self.standard_scaler.transform(full_vector)
+
         # model expects a batch, so add a batch dimension of size 1
-        return torch.from_numpy(full_vector).unsqueeze(0)
+        return full_vector.unsqueeze(0)
 
     def reconstruction_error(self, text: str, embedding) -> float:
         input_vector = self.build_input_vector(text, embedding)
@@ -112,14 +130,26 @@ class AutoEncoderPipeline(PipelinePhase):
             verdict = Verdict.undetermined
             confidence = 0.0
 
-        return Ok(SuccessReturn(verdict=verdict, at_phase=self.phase, confidence=confidence))
+        return Ok(
+            SuccessReturn(verdict=verdict, at_phase=self.phase, confidence=confidence)
+        )
 
-    def verdict_with_data(self, input: PhaseInput) -> Result[SuccessForReview, PhaseError]:
+    def verdict_with_data(
+        self, input: PhaseInput
+    ) -> Result[SuccessForReview, PhaseError]:
         result = self.verdict(input)
         if result.is_err():
             return result
 
         text = input.require_text()
-        embedding = input.embedding if input.embedding is not None else np.array(embed_text(text))
+        embedding = (
+            input.embedding
+            if input.embedding is not None
+            else np.array(embed_text(text))
+        )
 
-        return Ok(SuccessForReview(success_return=result.unwrap(), embedding=embedding, text=text))
+        return Ok(
+            SuccessForReview(
+                success_return=result.unwrap(), embedding=embedding, text=text
+            )
+        )

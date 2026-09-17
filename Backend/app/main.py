@@ -1,9 +1,8 @@
+from auth.database import init_db
+from auth.router import router as auth_router
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-
-from auth.database import init_db
-from auth.router import router as auth_router
 
 from app.pipeline import Pipeline
 from app.pipeline.autoencoder import AutoEncoderPipeline
@@ -64,13 +63,17 @@ class ScreenResponse(BaseModel):
 @app.post("/screen", response_model=ScreenResponse)
 def screen(request: ScreenRequest):
     if detection_pipeline is None:
-        raise HTTPException(status_code=503, detail="detection pipeline is not ready yet")
+        raise HTTPException(
+            status_code=503, detail="detection pipeline is not ready yet"
+        )
 
     result = detection_pipeline.run(PhaseInput(text=request.prompt))
 
     if result.is_err():
         # a stage broke - fail closed rather than letting the prompt through
-        return ScreenResponse(verdict=Verdict.attack.name, phase="error", confidence=0.0)
+        return ScreenResponse(
+            verdict=Verdict.attack.name, phase="error", confidence=0.0
+        )
 
     success = result.unwrap()
     return ScreenResponse(

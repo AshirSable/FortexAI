@@ -17,7 +17,15 @@ import numpy as np
 
 from app.pipeline import PipelinePhase
 from app.pipeline.utils import embed_text
-from app.type_store import Ok, Phase, PhaseInput, Result, SuccessForReview, SuccessReturn, Verdict
+from app.type_store import (
+    Ok,
+    Phase,
+    PhaseInput,
+    Result,
+    SuccessForReview,
+    SuccessReturn,
+    Verdict,
+)
 from app.type_store._error import PhaseError
 
 # low on purpose: this isn't a real judgement, just a safe default
@@ -32,14 +40,30 @@ class LLM_JudgePipeline(PipelinePhase):
         # TODO: replace this once the judge model is chosen. It should call
         # the real LLM judge and return Verdict.benign / Verdict.attack based
         # on what it says. Until then: fail closed.
-        return Ok(SuccessReturn(verdict=Verdict.attack, at_phase=self.phase, confidence=FAIL_CLOSED_CONFIDENCE))
+        return Ok(
+            SuccessReturn(
+                verdict=Verdict.attack,
+                at_phase=self.phase,
+                confidence=FAIL_CLOSED_CONFIDENCE,
+            )
+        )
 
-    def verdict_with_data(self, input: PhaseInput) -> Result[SuccessForReview, PhaseError]:
+    def verdict_with_data(
+        self, input: PhaseInput
+    ) -> Result[SuccessForReview, PhaseError]:
         result = self.verdict(input)
         if result.is_err():
             return result
 
         text = input.require_text()
-        embedding = input.embedding if input.embedding is not None else np.array(embed_text(text))
+        embedding = (
+            input.embedding
+            if input.embedding is not None
+            else np.array(embed_text(text))
+        )
 
-        return Ok(SuccessForReview(success_return=result.unwrap(), embedding=embedding, text=text))
+        return Ok(
+            SuccessForReview(
+                success_return=result.unwrap(), embedding=embedding, text=text
+            )
+        )

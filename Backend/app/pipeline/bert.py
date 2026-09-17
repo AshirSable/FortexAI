@@ -30,10 +30,20 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 from app.pipeline import PipelinePhase
 from app.pipeline.utils import embed_text
-from app.type_store import Err, Ok, Phase, PhaseInput, Result, SuccessForReview, SuccessReturn, Verdict
+from app.type_store import (
+    Err,
+    Ok,
+    Phase,
+    PhaseInput,
+    Result,
+    SuccessForReview,
+    SuccessReturn,
+    Verdict,
+)
 from app.type_store._error import InferenceError, ModelUnavailableError, PhaseError
+from ml_factory import MODEL_DIRECTORY_RELEASED
 
-MODEL_DIR = Path(__file__).resolve().parents[2] / "ml_factory" / "notebooks" / "best_bert_classifier"
+MODEL_DIR = MODEL_DIRECTORY_RELEASED
 FALLBACK_TOKENIZER_NAME = "google/bert_uncased_L-2_H-128_A-2"
 
 # label 1 = attack, label 0 = benign, matching how the model was trained
@@ -45,18 +55,26 @@ DEFAULT_CONFIDENCE_THRESHOLD = 0.6
 
 
 class EnsembleBERTPipeline(PipelinePhase):
-    def __init__(self, model_dir: Path = MODEL_DIR, confidence_threshold: float = DEFAULT_CONFIDENCE_THRESHOLD):
+    def __init__(
+        self,
+        model_dir: Path = MODEL_DIR,
+        confidence_threshold: float = DEFAULT_CONFIDENCE_THRESHOLD,
+    ):
         super().__init__(phase=Phase.ensemble_bert)
 
         if not Path(model_dir).is_dir():
-            raise ModelUnavailableError(f"bert classifier folder not found at {model_dir}")
+            raise ModelUnavailableError(
+                f"bert classifier folder not found at {model_dir}"
+            )
 
         self.confidence_threshold = confidence_threshold
         self.model = AutoModelForSequenceClassification.from_pretrained(model_dir)
         self.model.eval()
 
         model_dir = Path(model_dir)
-        has_real_tokenizer_files = (model_dir / "tokenizer.json").exists() or (model_dir / "vocab.txt").exists()
+        has_real_tokenizer_files = (model_dir / "tokenizer.json").exists() or (
+            model_dir / "vocab.txt"
+        ).exists()
 
         if has_real_tokenizer_files:
             self.tokenizer = AutoTokenizer.from_pretrained(model_dir)
@@ -64,7 +82,9 @@ class EnsembleBERTPipeline(PipelinePhase):
             self.tokenizer = AutoTokenizer.from_pretrained(FALLBACK_TOKENIZER_NAME)
 
     def attack_probability(self, text: str) -> float:
-        tokens = self.tokenizer(text, return_tensors="pt", truncation=True, max_length=128)
+        tokens = self.tokenizer(
+            text, return_tensors="pt", truncation=True, max_length=128
+        )
         with torch.no_grad():
             logits = self.model(**tokens).logits
             probabilities = torch.softmax(logits, dim=-1)[0]
@@ -90,14 +110,26 @@ class EnsembleBERTPipeline(PipelinePhase):
             verdict = Verdict.undetermined
             confidence = max(attack_probability, benign_probability)
 
-        return Ok(SuccessReturn(verdict=verdict, at_phase=self.phase, confidence=confidence))
+        return Ok(
+            SuccessReturn(verdict=verdict, at_phase=self.phase, confidence=confidence)
+        )
 
-    def verdict_with_data(self, input: PhaseInput) -> Result[SuccessForReview, PhaseError]:
+    def verdict_with_data(
+        self, input: PhaseInput
+    ) -> Result[SuccessForReview, PhaseError]:
         result = self.verdict(input)
         if result.is_err():
             return result
 
         text = input.require_text()
-        embedding = input.embedding if input.embedding is not None else np.array(embed_text(text))
+        embedding = (
+            input.embedding
+            if input.embedding is not None
+            else np.array(embed_text(text))
+        )
 
-        return Ok(SuccessForReview(success_return=result.unwrap(), embedding=embedding, text=text))
+        return Ok(
+            SuccessForReview(
+                success_return=result.unwrap(), embedding=embedding, text=text
+            )
+        )
