@@ -4,3 +4,6 @@ data/*
 !data/readme.md
 
 model_directory/development
+
+# temporarily ignored
+model_directory/released
