@@ -15,11 +15,7 @@ from ml_factory.evaluation.loss import LOSS_MAP
 from ml_factory.evaluation.metrics import METRICS_MAP
 from ml_factory.evaluation.utils import EvaluationMapMapper, IncludeEvaluationMapper
 from ml_factory.models import Args
-from ml_factory.models import autoencoder
 from ml_factory.models.autoencoder import BaseNormalAutoEncoder, NormalityAE
-from ml_factory.training_scripts.training_script_ae_structural import (
-    training_attack_malleable,
-)
 from ml_factory.training_scripts.scripts_structural import (
     CONFIG,
     autoencoder_training,
@@ -175,17 +171,17 @@ def attack_trainings():
     )
 
     base_model_losses = [
-        # include_loss,
-        # include_loss_normality_contrastive,
-        # include_loss_normality_oe_contrastive,
+        include_loss,
+        include_loss_normality_contrastive,
+        include_loss_normality_oe_contrastive,
     ]
 
     all_include_losses = [
-        # include_loss,
-        # include_loss_normality_contrastive,
-        # include_loss_normality_oe_contrastive,
-        # include_loss_normality_oe_diversity,
-        # include_loss_normality_contrastive_diversity,
+        include_loss,
+        include_loss_normality_contrastive,
+        include_loss_normality_oe_contrastive,
+        include_loss_normality_oe_diversity,
+        include_loss_normality_contrastive_diversity,
         include_loss_normality_oe_router,
         include_loss_normality_contrastive_router,
         include_loss_normality_oe_contrastive_router,

@@ -20,13 +20,13 @@ from ml_factory.datasets.sampler import SplitSampler
 from ml_factory.datasets.test import evaluate_on_shieldlm_test
 from ml_factory.models import Args, BaseNormalAutoEncoder, NormalityAE
 from ml_factory.models.autoencoder import ModelResult
-from ml_factory.training_scripts.scripts_ae import TEST_RATIO
 from ml_factory.utils.scaler import StandardScaler
 
 EMBEDDING_MODEL = "nomic-embed-text"
 SEED = 3123
 TRAIN_RATIO = 0.7
 TEST_RATIO = 0.15
+VALIDATION_RATIO = 0.15
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 
@@ -423,57 +423,38 @@ if __name__ == "__main__":
 
     print(normality_thresholds)
 
-    # print('\n' + '#' * 70)
-    # print('BASE NORMAL AUTOENCODER - TEST RESULTS')
-    # print('#' * 70)
-    #
-    # evaluation_base_ae = evaluate_models(
-    #     model=base_model,
-    #     model_files=base_ae_models,
-    #     thresholds=base_ae_thresholds,
-    #     test_loader=test_loader
-    # )
-    #
-    # print(evaluation_base_ae.show(ascii_tables=True))
-    #
-    # print('\n' + '#' * 70)
-    # print('NORMALITY AE - TEST RESULTS')
-    # print('#' * 70)
-    #
-    # evaluation_normality_ae = evaluate_models(
-    #     model=normality_model,
-    #     model_files=normality_ae_models,
-    #     thresholds=normality_thresholds,
-    #     test_loader=test_loader
-    # )
-    #
-    # print(evaluation_normality_ae.show(ascii_tables=True))
-    # plot_auc_pr_curves(
-    #     base_model,
-    #     base_ae_models,
-    #     test_loader,
-    #     DEVICE
-    # )
-    #
-    # plot_auc_pr_curves(
-    #     normality_model,
-    #     normality_ae_models,
-    #     test_loader,
-    #     DEVICE
-    # )
-    #
-    # plot_threshold_f1(
-    # base_model,
-    # base_ae_models,
-    # validation_loader,
-    # DEVICE)
-    #
-    # plot_threshold_f1(
-    #     normality_model,
-    #     normality_ae_models,
-    #     validation_loader,
-    #     DEVICE
-    # )
+    print("\n" + "#" * 70)
+    print("BASE NORMAL AUTOENCODER - TEST RESULTS")
+    print("#" * 70)
+
+    evaluation_base_ae = evaluate_models(
+        model=base_model,
+        model_files=base_ae_models,
+        thresholds=base_ae_thresholds,
+        test_loader=test_loader,
+    )
+
+    print(evaluation_base_ae.show(ascii_tables=True))
+
+    print("\n" + "#" * 70)
+    print("NORMALITY AE - TEST RESULTS")
+    print("#" * 70)
+
+    evaluation_normality_ae = evaluate_models(
+        model=normality_model,
+        model_files=normality_ae_models,
+        thresholds=normality_thresholds,
+        test_loader=test_loader,
+    )
+
+    print(evaluation_normality_ae.show(ascii_tables=True))
+    plot_auc_pr_curves(base_model, base_ae_models, test_loader, DEVICE)
+
+    plot_auc_pr_curves(normality_model, normality_ae_models, test_loader, DEVICE)
+
+    plot_threshold_f1(base_model, base_ae_models, validation_loader, DEVICE)
+
+    plot_threshold_f1(normality_model, normality_ae_models, validation_loader, DEVICE)
 
     print(f"MODEL EVALUATION: {base_model.__class__.__name__} on shield LM")
     print(

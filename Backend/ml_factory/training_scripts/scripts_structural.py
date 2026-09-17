@@ -1,9 +1,11 @@
-from dataclasses import dataclass, asdict, field
+import json
+import time
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from functools import partial
-import json
 from typing import Optional
 
+import torch
 from nltk import Path
 
 from ml_factory import (
@@ -12,22 +14,16 @@ from ml_factory import (
     MODEL_DIRECTORY_DEV,
     TRAINING_LOGS_DIR,
 )
-from ml_factory.evaluation import MSE_LOSS
-from ml_factory.evaluation.loss import LOSS_MAP
-from ml_factory.evaluation.utils import EvaluationMapMapper, IncludeEvaluationMapper
 from ml_factory.training_scripts.training_script_ae_structural import (
     training_attack_malleable,
 )
-import time
 from ml_factory.utils import (
     ModelSaver,
     Tracker,
     embedding_text,
 )
 from ml_factory.utils.plotter import plotting_logs
-from ml_factory.utils.qol import load_dataset_template, ResultLoaders
-import torch
-
+from ml_factory.utils.qol import ResultLoaders, load_dataset_template
 from ml_factory.utils.structural_extractor import StructuralExtractor
 
 
@@ -77,6 +73,7 @@ class Files:
     processed_data_file: Path
     sampler_file: Path
     structural_extractor_file: Path
+    scaler_file: Path
 
 
 def get_files_for_benign(config: CONFIG):
@@ -89,6 +86,8 @@ def get_files_for_benign(config: CONFIG):
         sampler_file=DATA_PROCESSED_DIR
         / f"SAMPLER_only_benign_prompts_seed_{config.seed}_TRAIN_RATIO_{config.train_ratio}_TEST_RATIO_{config.test_ratio}.pt",
         structural_extractor_file=DATA_PROCESSED_DIR / f"structural_extractor.json",
+        scaler_file=DATA_PROCESSED_DIR
+        / f"SCALER_FILE_FOR_BENIGN_SEED_{config.seed}.pt",
     )
 
 
@@ -102,6 +101,7 @@ def get_files_for_full_data(config: CONFIG):
         sampler_file=DATA_PROCESSED_DIR
         / f"SAMPLER_final_data_seed_processed_{config.seed}_TRAIN_RATIO_{config.train_ratio}_TEST_RATIO_{config.test_ratio}.pt",
         structural_extractor_file=DATA_PROCESSED_DIR / f"structural_extractor.json",
+        scaler_file=DATA_PROCESSED_DIR / f"SCALER_FILE_FOR_FULL_SEED_{config.seed}.pt",
     )
 
 
@@ -146,6 +146,7 @@ def get_full_data(config: CONFIG, files: Optional[Files] = None):
         structural_extractor.save_json(files.structural_extractor_file)
 
     full_data_loaders = load_dataset_template(
+        scaler_file=files.scaler_file,
         data_file=files.processed_data_file,
         raw_data_file=files.raw_data_file,
         sampler_file=files.sampler_file,
@@ -276,3 +277,20 @@ def autoencoder_training(
         json.dump(config.get_dict(), f)
 
     print("Training Finished", "\n\n", "#" * 20)
+
+
+if __name__ == "__main__":
+    SEED = 3123
+    base_config = CONFIG(
+        loss_map={},
+        include_loss={},
+        metrics_map={},
+        include_metrics=[],
+        best_metric="",
+        best_metric_condition="ge",
+        batch_size=128,
+        seed=SEED,
+        ratio_sampler=True,
+        attack_ratio=0.2,
+    )
+    get_full_data(base_config)
