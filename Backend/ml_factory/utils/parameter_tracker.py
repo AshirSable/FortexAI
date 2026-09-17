@@ -64,7 +64,7 @@ class Tracker[T: (int, float, torch.Tensor)]:
         else:
             self.counter[key] = self._counter_type(self.counter[key] + val_to_add)
 
-    def update_logs(self, _by: int = 1, ignore: List[str] = []):
+    def update_logs(self, _by: int = 1, ignore: list[str] = []):
         for key in self.counter.keys():
             if not key in ignore:
                 self._logs_update_single(

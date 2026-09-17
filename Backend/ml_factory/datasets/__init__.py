@@ -113,17 +113,17 @@ class PromptBERTDataset(Dataset):
 
         return positions
 
-    def __getitem__(self, index) -> PromptBERTResult:
+    def __getitem__(self, index) -> dict:
 
-        return PromptBERTResult(
-            tokenized=torch.tensor(self.tokenized[index]).long(),
-            label=torch.tensor(self.labels[index]).long(),
-            doc_id=self.item_ids[index],
-            chunk_idx=int(self.chunk_idx[index]) if self.has_chunks else 0,
-            num_chunks=int(self.num_chunks[index]) if self.has_chunks else 0,
-            attention_masks=torch.tensor(self.attention_mask[index]).long(),
-            text=self.text[index],
-        )
+        return {
+            "tokenized": torch.tensor(self.tokenized[index]).long(),
+            "label": torch.tensor(self.labels[index]).long(),
+            "doc_id": self.item_ids[index],
+            "chunk_idx": int(self.chunk_idx[index]) if self.has_chunks else 0,
+            "num_chunks": int(self.num_chunks[index]) if self.has_chunks else 0,
+            "attention_masks": torch.tensor(self.attention_mask[index]).long(),
+            "text": self.text[index],
+        }
 
 
 class PromptFeatureDataset(Dataset):
