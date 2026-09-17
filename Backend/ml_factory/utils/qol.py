@@ -1,48 +1,49 @@
-from dataclasses import dataclass
+import asyncio
 import os
-from typing import Optional, Callable, Awaitable, List
+from collections.abc import Awaitable, Callable
+from dataclasses import dataclass
+from pathlib import Path
+
+import polars as pl
 from datasets.utils.py_utils import Literal
 from torch import Size
 from torch.utils.data import DataLoader, Subset
-from pathlib import Path
-import polars as pl
-import asyncio
-from ml_factory.utils import give_id_to_data, embedding_text
-from ml_factory.utils.scaler import StandardScaler
-from ml_factory.utils.structural_extractor import StructuralExtractor
-from ml_factory.datasets.sampler import SplitSampler, RatioSampler
+
 from ml_factory.datasets import (
-    merge_parts,
-    precompute_features_ae,
     PromptFeatureDataset,
 )
+from ml_factory.datasets.precompute_features import precompute_features_ae
+from ml_factory.datasets.sampler import RatioSampler, SplitSampler
+from ml_factory.utils import embedding_text, give_id_to_data, merge_parts
+from ml_factory.utils.scaler import StandardScaler
+from ml_factory.utils.structural_extractor import StructuralExtractor
 
 
 @dataclass
 class ResultLoaders:
-    train: Optional[DataLoader]
-    validation: Optional[DataLoader]
-    test: Optional[DataLoader]
+    train: DataLoader | None
+    validation: DataLoader | None
+    test: DataLoader | None
     x_dim: Size
     y_dim: Size
     _len: int
 
 
 def load_dataset_template(
-    data_file: Optional[Path] = None,
-    raw_data_file: Optional[Path] = None,
-    sampler_file: Optional[Path] = None,
-    scaler_file: Optional[Path] = None,
+    data_file: Path | None = None,
+    raw_data_file: Path | None = None,
+    sampler_file: Path | None = None,
+    scaler_file: Path | None = None,
     ratio_sampler: bool = False,
     TRAIN_RATIO: float = 0.7,
     TEST_RATIO: float = 0.15,
     VALIDATION_RATIO: float = 0.15,
     SEED: int = 3123,
     EMBEDDING_MODEL: str = "nomic-embed-text",
-    embedding_fn: Callable[..., Awaitable[List]] = embedding_text,
-    structural_exec: Optional[StructuralExtractor] = None,
+    embedding_fn: Callable[..., Awaitable[list]] = embedding_text,
+    structural_exec: StructuralExtractor | None = None,
     ATTACK_RATIO: float = 0.2,
-    epoch_length: Optional[int] = None,
+    epoch_length: int | None = None,
     BATCH_SIZE: int = 128,
     save_n: Literal["all"] | int = 1000,
 ):
