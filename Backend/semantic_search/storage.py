@@ -12,7 +12,6 @@ from pathlib import Path
 
 import faiss
 import numpy as np
-
 from embedder import embed_text
 
 STORE_DIR = Path(__file__).resolve().parent / "store"
@@ -41,7 +40,9 @@ def load_or_create_index(index_path):
     if index_path.exists():
         return faiss.read_index(str(index_path))
     flat_index = faiss.IndexFlatIP(EMBEDDING_DIMENSION)
-    return faiss.IndexIDMap2(flat_index)  # lets us tag each vector with our own SQLite row id
+    return faiss.IndexIDMap2(
+        flat_index
+    )  # lets us tag each vector with our own SQLite row id
 
 
 # writes a FAISS index to disk so it survives between runs
@@ -53,19 +54,19 @@ def save_index(index, index_path):
 def connect_metadata_db(db_path):
     connection = sqlite3.connect(db_path)
     connection.execute("PRAGMA journal_mode=WAL")  # faster commits, still crash-safe
-    connection.execute(
-        """
+    connection.execute("""
         CREATE TABLE IF NOT EXISTS prompts (
             id INTEGER PRIMARY KEY,
             prompt_text TEXT NOT NULL,
             prompt_hash TEXT NOT NULL,
             added_at TEXT NOT NULL
         )
-        """
-    )
+        """)
     # without this, checking for a duplicate prompt does a full table scan that gets
     # slower as the table grows (it was the biggest bottleneck in early testing)
-    connection.execute("CREATE INDEX IF NOT EXISTS idx_prompts_hash ON prompts(prompt_hash)")
+    connection.execute(
+        "CREATE INDEX IF NOT EXISTS idx_prompts_hash ON prompts(prompt_hash)"
+    )
     connection.commit()
     return connection
 

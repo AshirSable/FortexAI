@@ -17,7 +17,6 @@ import time
 from pathlib import Path
 
 import pandas as pd
-
 from embedder import embed_texts
 from storage import (
     ALLOWED_PROMPTS_DB_PATH,
@@ -109,13 +108,17 @@ def build_indexes():
 
         rows_since_checkpoint += 1
         if rows_since_checkpoint >= CHECKPOINT_EVERY:
-            flush_pending_batch(pending)  # never checkpoint with embedded vectors still unsaved
+            flush_pending_batch(
+                pending
+            )  # never checkpoint with embedded vectors still unsaved
             checkpoint(attack_index, attack_db, benign_index, benign_db)
             rows_since_checkpoint = 0
 
         if row_number % PROGRESS_EVERY == 0 or row_number == total_rows:
             elapsed_seconds = time.time() - started_at
-            print(f"Processed {row_number}/{total_rows} prompts ({elapsed_seconds:.1f}s elapsed)")
+            print(
+                f"Processed {row_number}/{total_rows} prompts ({elapsed_seconds:.1f}s elapsed)"
+            )
 
     flush_pending_batch(pending)
     checkpoint(attack_index, attack_db, benign_index, benign_db)
