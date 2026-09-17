@@ -8,13 +8,64 @@
 # a struct that would keep this enum with confidence and a record of the phase
 # another struct which would keep the previous struct with the input data...
 from abc import ABC, abstractmethod
+from dataclasses import replace
 
-from app.type_store import Phase, PhaseInput, Result, SuccessForReview, SuccessReturn
+from app.type_store import Phase, PhaseInput, Result, SuccessForReview, SuccessReturn, Verdict
 
 from app.type_store._error import PhaseError
 
 
-class Pipeline: ...
+class Pipeline:
+    """
+    Runs the detection stages one at a time, in the order given, and stops at
+    the first stage whose verdict is NOT `undetermined`.
+
+    This is the paper's D(x) = d_k(x): the first stage in the cascade that is
+    willing to make a call wins, and every stage before it just passed.
+
+    We take the list of phases in the constructor instead of building it
+    ourselves, because each stage module (semantic_search.py, autoencoder.py,
+    ...) imports PipelinePhase from this file - if this file also imported
+    those stage modules, we'd get a circular import. Whoever wires the
+    pipeline together (main.py) builds the phase list.
+    """
+
+    def __init__(self, phases: list["PipelinePhase"]):
+        if not phases:
+            raise ValueError("Pipeline needs at least one phase to run")
+        self.phases = phases
+
+    def run(self, input: PhaseInput) -> Result[SuccessReturn, PhaseError]:
+        current_input = input
+        last_result = None
+
+        for phase in self.phases:
+            result = phase.verdict(current_input)
+
+            if result.is_err():
+                # a stage broke - stop here and hand the error back, instead
+                # of guessing what the broken stage would have said.
+                return result
+
+            last_result = result
+            success = result.unwrap()
+
+            if success.verdict != Verdict.undetermined:
+                # this stage made a call - the cascade stops here.
+                return result
+
+            # this stage had no opinion - remember its result and move on to
+            # the next stage, carrying the prior results forward so later
+            # stages can see what already ran.
+            prior_results = dict(current_input._prior_results)
+            prior_results[phase.phase] = success
+            current_input = replace(current_input, _prior_results=prior_results)
+
+        # every single stage came back undetermined. This shouldn't happen
+        # once llm_judge (the last stage) is wired to always decide, but we
+        # handle it instead of crashing: just return the last undetermined
+        # result we got (phases is never empty, so we always have one).
+        return last_result
 
 
 class PipelinePhase(ABC):

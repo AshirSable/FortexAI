@@ -72,6 +72,11 @@ class PhaseInput:
 class Verdict(int, Enum):
     benign = 0
     attack = 1
+    # a stage looked at the prompt but couldn't decide either way (e.g. semantic
+    # search's "not_found", or a borderline autoencoder/classifier score).
+    # it means "no opinion, let the next stage decide" - it is NOT the same as
+    # benign, and it is not an error either (that's what Err/PhaseError is for).
+    undetermined = 2
 
 
 class Phase(int, Enum):

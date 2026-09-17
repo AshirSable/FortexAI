@@ -1,7 +1,7 @@
 fastapi
 uvicorn
 polars
-pytorch
+torch
 ollama
 scikit-learn
 pydantic
@@ -12,3 +12,5 @@ faiss-cpu
 bcrypt
 PyJWT
 sqlalchemy
+transformers
+nltk
