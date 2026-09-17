@@ -1,8 +1,7 @@
+from pathlib import Path
+from typing import Optional
+
 import polars as pl
-from pathlib import Path
-from typing import Optional
-from pathlib import Path
-from typing import Optional
 
 TOKENIZED_NAME = "tokenized"
 LABELS_NAME = "labels"
@@ -10,7 +9,7 @@ ID_NAME = "ids"
 CHUNK_ID_NAME = "chunk_idx"
 NUM_CHUNK_NAME = "num_chunks"
 TEXT_NAME = "text"
-EMBEDDING_NAME = "embedding"
+EMBEDDING_NAME = "embeddings"
 STRUCTURAL_NAME = "structural"
 
 

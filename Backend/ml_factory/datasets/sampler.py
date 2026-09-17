@@ -1,9 +1,11 @@
-from pathlib import Path
-from os import PathLike
-import polars as pl
-from typing import Iterable, Self, Optional, Literal
-from collections import defaultdict
 import hashlib
+from collections import defaultdict
+from os import PathLike
+from pathlib import Path
+from typing import Literal, Optional, Self
+from collections.abc import Iterable
+
+import polars as pl
 import torch
 from torch.utils.data import Sampler
 
@@ -160,5 +162,3 @@ class SplitSampler:
             },
             path,
         )
-
-        return None

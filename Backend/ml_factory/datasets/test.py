@@ -97,7 +97,7 @@ def process_data(
     embedding_model: str = "nomic-embed-text",
 ):
 
-    from ml_factory.datasets import precompute_features_ae
+    from ml_factory.datasets.precompute_features import precompute_features_ae
     from ml_factory.utils import embedding_text
 
     file_name = file_name or raw_file_name
@@ -197,7 +197,6 @@ def evaluate_on_shieldlm_test(
             }
         )
 
-        # optional: per-category breakdown, appended as additional rows
         if categories is not None:
             for category in sorted(set(categories) - {"benign"}):
                 cat_mask = (categories == category) | (categories == "benign")
@@ -206,7 +205,7 @@ def evaluate_on_shieldlm_test(
                 cat_preds = predictions[cat_mask]
 
                 if len(set(cat_labels)) < 2:
-                    continue  # skip degenerate single-class slices
+                    continue
 
                 rows.append(
                     {

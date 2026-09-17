@@ -1,10 +1,9 @@
-from pathlib import Path
-from typing import Optional
-from transformers import PreTrainedTokenizerBase
-from dataclasses import dataclass, asdict, fields
+import json
+from dataclasses import asdict, dataclass, fields
 from pathlib import Path
 from typing import Optional, Self
-import json
+
+from transformers import PreTrainedTokenizerBase
 
 
 @dataclass()

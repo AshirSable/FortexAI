@@ -41,11 +41,11 @@ async def precompute_features_ae(
         else:
             part_path = Path(out_path).with_suffix(f".part{part_idx}.npz")
 
-        save_dict = dict(
-            ids=np.array(all_ids),
-            embeddings=np.stack(all_embeddings),
-            labels=np.array(all_labels),
-        )
+        save_dict = {
+            "ids": np.array(all_ids),
+            "embeddings": np.stack(all_embeddings),
+            "labels": np.array(all_labels),
+        }
 
         if structural_extractor is not None:
             save_dict["structural"] = np.array(all_structural, dtype=np.float32)
@@ -77,7 +77,7 @@ async def precompute_features_ae(
                 zip(ids_b, texts_b, labels_b, emb_b)
             ):
                 if emb is None:
-                    continue  # skip failed embeddings, keeps arrays shape-consistent
+                    continue
                 all_ids.append(item_id)
                 all_embeddings.append(emb)
                 all_labels.append(label)

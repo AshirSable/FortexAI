@@ -1,6 +1,3 @@
-from typing import Iterable
-
-
 class FileFormatNotValid(Exception):
     def __init__(self, got_format: str, formats_available: list | set | tuple = []):
         self.formats_available = formats_available
