@@ -4,17 +4,51 @@ import os
 import re
 import secrets
 
-import judge
-from schema import Verdict, VerdictLabel
+from LLM_Judge import judge
+from LLM_Judge.schema import Verdict, VerdictLabel
 
 # A short list used only to score "does this decoded text look like real
 # English", not a dictionary/NLP dependency - good enough to tell "Ignore all
 # previous instructions" apart from random decoded noise.
 _COMMON_ENGLISH_WORDS = {
-    "the", "and", "you", "your", "please", "to", "of", "in", "a", "is", "this",
-    "that", "instructions", "system", "ignore", "all", "previous", "prompt",
-    "reveal", "from", "now", "on", "are", "for", "with", "not", "be", "as",
-    "it", "an", "or", "if", "will", "can", "do", "my", "me", "i",
+    "the",
+    "and",
+    "you",
+    "your",
+    "please",
+    "to",
+    "of",
+    "in",
+    "a",
+    "is",
+    "this",
+    "that",
+    "instructions",
+    "system",
+    "ignore",
+    "all",
+    "previous",
+    "prompt",
+    "reveal",
+    "from",
+    "now",
+    "on",
+    "are",
+    "for",
+    "with",
+    "not",
+    "be",
+    "as",
+    "it",
+    "an",
+    "or",
+    "if",
+    "will",
+    "can",
+    "do",
+    "my",
+    "me",
+    "i",
 }
 
 _BASE64_CANDIDATE_RE = re.compile(r"[A-Za-z0-9+/]{20,}={0,2}")
@@ -60,7 +94,9 @@ def find_hidden_payloads(text: str) -> list[str]:
     return _decode_base64_candidates(text) + _decode_rot13_if_english(text)
 
 
-def isolate_input(text: str, context: str | None = None, style: str = "boundary") -> str:
+def isolate_input(
+    text: str, context: str | None = None, style: str = "boundary"
+) -> str:
     """Wrap `text`/`context` in an explicit, hard-to-forge boundary marking
     them as data, not instructions.
 
@@ -109,19 +145,30 @@ def isolate_input(text: str, context: str | None = None, style: str = "boundary"
     return block
 
 
-def _evaluate_isolated(text: str, context: str | None, style: str, strict: bool = False) -> Verdict:
-    return judge.evaluate_prompt(isolate_input(text, context, style=style), strict=strict)
+def _evaluate_isolated(
+    text: str, context: str | None, style: str, strict: bool = False
+) -> Verdict:
+    return judge.evaluate_prompt(
+        isolate_input(text, context, style=style), strict=strict
+    )
 
 
 def _default_self_consistency() -> bool:
     """Two-pass self-consistency defaults ON, but can be turned off with
     LLM_JUDGE_SELF_CONSISTENCY=0 - halves the call count, which matters against
     a rate-limited cloud backend (Groq free tier)."""
-    return os.getenv("LLM_JUDGE_SELF_CONSISTENCY", "1").lower() not in ("0", "false", "no", "")
+    return os.getenv("LLM_JUDGE_SELF_CONSISTENCY", "1").lower() not in (
+        "0",
+        "false",
+        "no",
+        "",
+    )
 
 
 def evaluate_with_guardrails(
-    text: str, context: str | None = None, self_consistency: bool | None = None,
+    text: str,
+    context: str | None = None,
+    self_consistency: bool | None = None,
     strict: bool = False,
 ) -> Verdict:
     """Judge `text` through the input-isolation wrapper, decoding any hidden
@@ -146,7 +193,9 @@ def evaluate_with_guardrails(
         self_consistency = _default_self_consistency()
 
     for payload in find_hidden_payloads(text):
-        decoded_verdict = _evaluate_isolated(payload, None, style="boundary", strict=strict)
+        decoded_verdict = _evaluate_isolated(
+            payload, None, style="boundary", strict=strict
+        )
         if decoded_verdict.verdict == VerdictLabel.MALICIOUS:
             return Verdict(
                 verdict=VerdictLabel.MALICIOUS,

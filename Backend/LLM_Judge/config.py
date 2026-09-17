@@ -1,10 +1,11 @@
 import os
+from pathlib import Path
 
 # Swappable without a code change via LLM_JUDGE_MODEL. Switched from
 # qwen3guard-gen:4b to a general instruct model - see PROGRESS_LOG.md for why
 # (qwen3guard-gen ignored our system prompt/schema entirely and missed
 # paraphrase-disguised attacks on the 500-row external evaluation).
-MODEL_NAME = os.getenv("LLM_JUDGE_MODEL", "llama3.1:8b-instruct-q4_K_M")
+MODEL_NAME = os.getenv("LLM_JUDGE_MODEL", "deepseek-r1:7b")
 OLLAMA_HOST = os.getenv("OLLAMA_HOST")  # None -> ollama client's own default
 REQUEST_TIMEOUT_SECONDS = float(os.getenv("LLM_JUDGE_TIMEOUT_SECONDS", "30"))
 
@@ -20,3 +21,6 @@ GROQ_BASE_URL = os.getenv("GROQ_BASE_URL", "https://api.groq.com/openai/v1")
 # token use (and free-tier rate-limit pressure) down; the few-shot example in
 # prompt.py carries most of the reasoning load. Ignored by non-gpt-oss models.
 GROQ_REASONING_EFFORT = os.getenv("GROQ_REASONING_EFFORT", "low")
+
+LLM_JUDGE_PATH = Path(os.path.dirname(__file__))
+PROMPTS_PATH = LLM_JUDGE_PATH / "prompts"

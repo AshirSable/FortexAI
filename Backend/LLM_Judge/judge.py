@@ -5,7 +5,7 @@ import httpx
 import ollama
 from pydantic import ValidationError
 
-from config import (
+from LLM_Judge.config import (
     GROQ_API_KEY,
     GROQ_BASE_URL,
     GROQ_MODEL,
@@ -15,8 +15,8 @@ from config import (
     OLLAMA_HOST,
     REQUEST_TIMEOUT_SECONDS,
 )
-from prompt import build_messages
-from schema import Verdict, VerdictLabel
+from LLM_Judge.prompt import build_messages
+from LLM_Judge.schema import Verdict, VerdictLabel
 
 logger = logging.getLogger(__name__)
 
@@ -71,28 +71,41 @@ def _chat_via_groq(messages: list[dict]) -> str:
     last_exc: Exception | None = None
     for attempt in range(_GROQ_MAX_RETRIES):
         try:
-            resp = httpx.post(url, json=payload, headers=headers, timeout=REQUEST_TIMEOUT_SECONDS)
+            resp = httpx.post(
+                url, json=payload, headers=headers, timeout=REQUEST_TIMEOUT_SECONDS
+            )
         except httpx.HTTPError as e:
             last_exc = e
-            time.sleep(min(2 ** attempt, 30))
+            time.sleep(min(2**attempt, 30))
             continue
 
         if resp.status_code == 429 or resp.status_code >= 500:
             retry_after = resp.headers.get("retry-after")
-            wait = float(retry_after) if retry_after else min(2 ** attempt, 60)
-            logger.warning("Groq %s; retrying in %.1fs (attempt %d)", resp.status_code, wait, attempt + 1)
+            wait = float(retry_after) if retry_after else min(2**attempt, 60)
+            logger.warning(
+                "Groq %s; retrying in %.1fs (attempt %d)",
+                resp.status_code,
+                wait,
+                attempt + 1,
+            )
             time.sleep(wait)
             continue
 
         if resp.status_code != 200:
-            raise ollama.ResponseError(f"Groq returned {resp.status_code}: {resp.text[:200]}")
+            raise ollama.ResponseError(
+                f"Groq returned {resp.status_code}: {resp.text[:200]}"
+            )
 
         return resp.json()["choices"][0]["message"]["content"]
 
-    raise ollama.ResponseError(f"Groq unreachable after {_GROQ_MAX_RETRIES} retries: {last_exc}")
+    raise ollama.ResponseError(
+        f"Groq unreachable after {_GROQ_MAX_RETRIES} retries: {last_exc}"
+    )
 
 
-def evaluate_prompt(text: str, context: str | None = None, *, strict: bool = False) -> Verdict:
+def evaluate_prompt(
+    text: str, context: str | None = None, *, strict: bool = False
+) -> Verdict:
     """Classify `text` (optionally with `context`) using the configured backend
     (local Ollama by default, or Groq when LLM_JUDGE_BACKEND=groq).
 
@@ -117,15 +130,23 @@ def evaluate_prompt(text: str, context: str | None = None, *, strict: bool = Fal
         logger.warning("Judge call to %s timed out/unreachable: %s", backend_label, e)
         if strict:
             raise JudgeUnavailable(f"{type(e).__name__}: {e}") from e
-        return _fail_safe(f"Judge call failed ({type(e).__name__}); escalating for manual review.")
+        return _fail_safe(
+            f"Judge call failed ({type(e).__name__}); escalating for manual review."
+        )
     except (ollama.ResponseError, ollama.RequestError) as e:
         logger.warning("Judge call to %s errored: %s", backend_label, e)
         if strict:
             raise JudgeUnavailable(f"{type(e).__name__}: {e}") from e
-        return _fail_safe(f"Judge call errored ({type(e).__name__}); escalating for manual review.")
+        return _fail_safe(
+            f"Judge call errored ({type(e).__name__}); escalating for manual review."
+        )
 
     try:
         return Verdict.model_validate_json(raw_content)
     except ValidationError as e:
-        logger.warning("Judge output failed schema validation: %s | raw=%r", e, raw_content)
-        return _fail_safe("Judge output was malformed/unparseable; escalating for manual review.")
+        logger.warning(
+            "Judge output failed schema validation: %s | raw=%r", e, raw_content
+        )
+        return _fail_safe(
+            "Judge output was malformed/unparseable; escalating for manual review."
+        )
