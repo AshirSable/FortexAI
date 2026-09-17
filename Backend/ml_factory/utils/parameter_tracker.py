@@ -1,3 +1,4 @@
+import warnings
 from collections import defaultdict
 from pathlib import Path
 
@@ -29,7 +30,7 @@ class Tracker[T: (int, float, torch.Tensor)]:
             self.counter[d] = self._default_factory()
 
     def counter_reset(self):
-        for key in self.counter.keys():
+        for key in self.counter:
             self.counter[key] = self._default_factory()
 
     def current_counter(self, key):
@@ -42,11 +43,11 @@ class Tracker[T: (int, float, torch.Tensor)]:
         for k, v in data.items():
             self.counter_update(k, v)
 
-    def _logs_update_map(self, data: dict[str, float], _by: int | float = 1):
+    def _logs_update_map(self, data: dict[str, float], _by: float = 1):
         for key, value in data.items():
             self._logs_update_single(key=key, value=value, _by=_by)
 
-    def _logs_update_single(self, key: str, value: float, _by: int | float = 1):
+    def _logs_update_single(self, key: str, value: float, _by: float = 1):
         if _by == 0:
             _by = 1
             warnings.warn("_by cannot be 0, keeping it as one")
@@ -64,8 +65,9 @@ class Tracker[T: (int, float, torch.Tensor)]:
         else:
             self.counter[key] = self._counter_type(self.counter[key] + val_to_add)
 
-    def update_logs(self, _by: int = 1, ignore: list[str] = []):
-        for key in self.counter.keys():
+    def update_logs(self, _by: int = 1, ignore: list[str] | None = None):
+        ignore = ignore or []
+        for key in self.counter:
             if not key in ignore:
                 self._logs_update_single(
                     key, self.__get_value(self.counter[key]), _by=_by

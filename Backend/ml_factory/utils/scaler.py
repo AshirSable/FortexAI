@@ -1,6 +1,8 @@
-import torch
 from pathlib import Path
 from typing import Optional, Self
+
+import torch
+
 
 class StandardScaler:
     def __init__(self, epsilon: float = 1e-6):
@@ -25,23 +27,24 @@ class StandardScaler:
         return self
 
     def save(self, path: Path | str):
-        torch.save({'mean': self.mean, 'std': self.std, 'epsilon': self.epsilon}, path)
+        torch.save({"mean": self.mean, "std": self.std, "epsilon": self.epsilon}, path)
 
     @classmethod
     def load(cls, path: Path | str) -> Self:
         loaded = torch.load(path)
-        cl_ = cls(epsilon = loaded['epsilon'])
+        cl_ = cls(epsilon=loaded["epsilon"])
 
-        cl_.__set_mean(loaded['mean'])
-        cl_.__set_std(loaded['std'])
+        cl_.__set_mean(loaded["mean"])
+        cl_.__set_std(loaded["std"])
 
         return cl_
 
     def transform(self, X: torch.Tensor) -> torch.Tensor:
         if self.mean is None or self.std is None:
-            raise RuntimeError("No Mean and Std Computed, please run .fit() method first")
+            raise RuntimeError(
+                "No Mean and Std Computed, please run .fit() method first"
+            )
         return (X - self.mean) / self.std
-
 
     def fit_transform(self, X: torch.Tensor) -> torch.Tensor:
         self.fit(X)

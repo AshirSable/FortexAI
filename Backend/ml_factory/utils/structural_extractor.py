@@ -1,14 +1,15 @@
-import re
-import json
-import nltk
-from dataclasses import dataclass
-from typing import List, Optional
-import warnings
-from pathlib import Path
-from nltk.tokenize import sent_tokenize
 import dataclasses
-from concurrent.futures import ProcessPoolExecutor
+import json
 import os
+import re
+import warnings
+from concurrent.futures import ProcessPoolExecutor
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Optional
+
+import nltk
+from nltk.tokenize import sent_tokenize
 
 nltk.download("punkt_tab")
 nltk.download("punkt")
@@ -16,11 +17,11 @@ nltk.download("punkt")
 
 @dataclass
 class EMPIRICAL_ATTACK_TERMS:
-    exfilteration: List[str]
-    subversion: List[str]
-    exploitation: List[str]
-    instruction_override: List[str]
-    guise_framing: List[str]
+    exfilteration: list[str]
+    subversion: list[str]
+    exploitation: list[str]
+    instruction_override: list[str]
+    guise_framing: list[str]
 
     def to_dict(self):
         return self.__dict__
@@ -51,7 +52,7 @@ class EMPIRICAL_ATTACK_TERMS:
             ],
         )
 
-    def __getitem__(self, name: str, /) -> List[str]:
+    def __getitem__(self, name: str, /) -> list[str]:
         return self.__dict__[name]
 
     @classmethod
@@ -79,7 +80,7 @@ class EMPIRICAL_ATTACK_TERMS:
         return cls(**final_value)
 
 
-def structural_fn_worker(args: tuple) -> List[float]:
+def structural_fn_worker(args: tuple) -> list[float]:
     text, term_list, code_pattern_str = args
 
     code_pattern = re.compile(code_pattern_str, re.I)
@@ -113,7 +114,7 @@ def structural_fn_worker(args: tuple) -> List[float]:
 class StructuralExtractor:
     def __init__(
         self,
-        _empirical_attack_terms: Optional[dict[str, List[str]]] = None,
+        _empirical_attack_terms: Optional[dict[str, list[str]]] = None,
         _code_injection_pattern: Optional[str] = None,
     ):
         self.empirical_attack_terms = (
@@ -137,7 +138,7 @@ class StructuralExtractor:
         return max(len(sent_tokenize(text)), 1)
 
     @property
-    def _term_lists(self) -> List[List[str]]:
+    def _term_lists(self) -> list[list[str]]:
         return [
             self.empirical_attack_terms.exfilteration,
             self.empirical_attack_terms.subversion,
@@ -146,7 +147,7 @@ class StructuralExtractor:
             self.empirical_attack_terms.guise_framing,
         ]
 
-    def calculate_empirical_term_counts(self, text: str) -> List[int]:
+    def calculate_empirical_term_counts(self, text: str) -> list[int]:
         text_lower = text.lower()
 
         return [
@@ -167,7 +168,7 @@ class StructuralExtractor:
 
         return int(has_code and has_intent_vocab)
 
-    def structural_fn(self, text: str) -> List[float]:
+    def structural_fn(self, text: str) -> list[float]:
         n_words = self.calculate_n_words(text)
         n_sentences = self.calculate_n_sentences(text)
         n_characters = self.calculate_n_characters(text)
@@ -185,7 +186,7 @@ class StructuralExtractor:
 
         return final_list
 
-    def structural_fn_batch(self, texts: List[str]) -> List[List[float]]:
+    def structural_fn_batch(self, texts: list[str]) -> list[list[float]]:
         code_pattern_str = self.code_injection_pattern.pattern
         term_list = self._term_lists
         args = [(text, term_list, code_pattern_str) for text in texts]
