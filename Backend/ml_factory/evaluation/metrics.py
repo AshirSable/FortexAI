@@ -25,7 +25,7 @@ def auprc(
     y_score,
     y_actual,
     average: Literal["micro", "samples", "weighted", "macro"] = "macro",
-    **_
+    **_,
 ):
     return pmeter.average_precision_score(y_actual, y_score, average=average)
 
@@ -98,8 +98,8 @@ class MetricsEngine(EvaluationEngine):
 
 
 from ml_factory.evaluation import (
-    AUPRC_METRIC,
     ACCURACY_METRIC,
+    AUPRC_METRIC,
     F1_METRIC,
     PRECISION_METRIC,
     RECALL_METRIC,

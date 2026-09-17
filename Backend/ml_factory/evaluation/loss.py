@@ -1,12 +1,12 @@
-from functools import partial
 import inspect
-from ml_factory.evaluation.abstract import EvaluationEngine
+from dataclasses import fields, is_dataclass
+from typing import Callable
+
 import torch
 import torch.nn.functional as F
-from dataclasses import is_dataclass, fields
 
+from ml_factory.evaluation.abstract import EvaluationEngine
 from ml_factory.models.autoencoder import ModelResult
-from typing import Callable
 
 
 def create_ctx_context(X: torch.Tensor, y: torch.Tensor, result: ModelResult) -> dict:
@@ -66,7 +66,7 @@ def compute_oe_loss(
     oe_weight=1.0,
     oe_margin=1.0,
     return_components: bool = True,
-    **_
+    **_,
 ):
     per_sample = criterion(X_hat, X).mean(dim=1)
 
@@ -151,11 +151,11 @@ def mse_loss(X_hat, X, reduction="none", **_):
 
 
 from ml_factory.evaluation import (
-    OE_LOSS,
-    DIVERSITY_LOSS,
     CONTRASTIVE_LOSS,
-    ROUTER_LOAD_BALANCE_LOSS,
+    DIVERSITY_LOSS,
     MSE_LOSS,
+    OE_LOSS,
+    ROUTER_LOAD_BALANCE_LOSS,
 )
 
 LOSS_MAP = {
