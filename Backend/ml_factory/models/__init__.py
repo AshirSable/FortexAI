@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from typing import Optional, Literal, List
+from typing import Literal
+
 
 @dataclass
 class Args:
@@ -9,8 +10,7 @@ class Args:
     expert_k: int = 2
     ae_bottleneck: int = 64
     experts_dim: int = 128
-    device: Literal['cuda', 'cpu'] = 'cuda'
+    device: Literal["cuda", "cpu"] = "cuda"
 
 
-
-from ml_factory.models.autoencoder import BaseNormalAutoEncoder, NormalityAE #noqa
+from ml_factory.models.autoencoder import BaseNormalAutoEncoder, NormalityAE  # noqa

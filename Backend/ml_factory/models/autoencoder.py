@@ -1,9 +1,10 @@
 from dataclasses import dataclass
+from typing import Optional
 
 import torch
-import torch.nn as nn
+from torch import nn
+
 from ml_factory.models import Args
-from typing import Optional
 
 
 @dataclass
@@ -64,9 +65,6 @@ class BaseNormalAutoEncoder(nn.Module):
         return self.__decoder(encoded_X)
 
 
-###############################################################
-
-
 class MLP(nn.Module):
     def __init__(self, input_dim: int, args: Args):
         super().__init__()
@@ -112,23 +110,19 @@ class NormalityAE(nn.Module):
         )
 
     def forward(self, X: torch.Tensor):
-        x = self.encoder(X)  # (batch, bottleneck_in)
+        x = self.encoder(X)
 
-        router_logits = self.router(x)  # (batch, n_experts)
-        top_vals, top_idx = router_logits.topk(self.k_expert, dim=-1)  # (batch, k)
-        weights = torch.softmax(top_vals, dim=-1)  # (batch, k)
+        router_logits = self.router(x)
+        top_vals, top_idx = router_logits.topk(self.k_expert, dim=-1)
+        weights = torch.softmax(top_vals, dim=-1)
 
-        all_expert_out = torch.stack(
-            [e(x) for e in self.experts], dim=1
-        )  # (batch, n_experts, ae_bottleneck)
+        all_expert_out = torch.stack([e(x) for e in self.experts], dim=1)
         gathered = torch.gather(
             all_expert_out,
             1,
             top_idx.unsqueeze(-1).expand(-1, -1, all_expert_out.size(-1)),
-        )  # (batch, k, ae_bottleneck)
-        combined = (gathered * weights.unsqueeze(-1)).sum(
-            dim=1
-        )  # (batch, ae_bottleneck)
+        )
+        combined = (gathered * weights.unsqueeze(-1)).sum(dim=1)
 
         recon = self.decoder(combined)
         return ModelResult(
