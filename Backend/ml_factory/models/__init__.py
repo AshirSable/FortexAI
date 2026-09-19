@@ -11,6 +11,7 @@ class Args:
     ae_bottleneck: int = 64
     experts_dim: int = 128
     device: Literal["cuda", "cpu"] = "cuda"
+    dropout: float = 0.2
 
 
 from ml_factory.models.autoencoder import BaseNormalAutoEncoder, NormalityAE  # noqa

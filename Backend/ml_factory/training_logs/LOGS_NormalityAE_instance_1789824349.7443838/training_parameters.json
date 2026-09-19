@@ -1,0 +1,45 @@
+{
+  "model": "NormalityAE(\n  (encoder): Sequential(\n    (0): Linear(in_features=777, out_features=512, bias=True)\n    (1): SiLU()\n    (2): Dropout(p=0.2, inplace=False)\n    (3): Linear(in_features=512, out_features=256, bias=True)\n    (4): SiLU()\n    (5): Dropout(p=0.2, inplace=False)\n    (6): Linear(in_features=256, out_features=128, bias=True)\n    (7): SiLU()\n    (8): Dropout(p=0.2, inplace=False)\n    (9): Linear(in_features=128, out_features=100, bias=True)\n    (10): Dropout(p=0.2, inplace=False)\n  )\n  (decoder): Sequential(\n    (0): Linear(in_features=100, out_features=128, bias=True)\n    (1): Dropout(p=0.2, inplace=False)\n    (2): SiLU()\n    (3): Linear(in_features=128, out_features=256, bias=True)\n    (4): Dropout(p=0.2, inplace=False)\n    (5): SiLU()\n    (6): Linear(in_features=256, out_features=512, bias=True)\n    (7): Dropout(p=0.2, inplace=False)\n    (8): SiLU()\n    (9): Linear(in_features=512, out_features=777, bias=True)\n    (10): Dropout(p=0.2, inplace=False)\n  )\n  (router): Linear(in_features=100, out_features=8, bias=True)\n  (experts): ModuleList(\n    (0-7): 8 x MLP(\n      (model): Sequential(\n        (0): Linear(in_features=100, out_features=50, bias=True)\n        (1): RMSNorm((50,), eps=None, elementwise_affine=True)\n        (2): SiLU()\n        (3): Dropout(p=0.2, inplace=False)\n        (4): Linear(in_features=50, out_features=100, bias=True)\n      )\n    )\n  )\n)",
+  "optimizer": "AdamW (\nParameter Group 0\n    amsgrad: False\n    betas: (0.9, 0.999)\n    capturable: False\n    decoupled_weight_decay: True\n    differentiable: False\n    eps: 1e-08\n    foreach: None\n    fused: None\n    initial_lr: 0.001\n    lr: 0.00010978479633083506\n    maximize: False\n    weight_decay: 0.01\n)",
+  "loss_map": {
+    "oe_loss": "partial(compute_oe_loss, {'return_components': False, 'oe_margin': 2.0, 'oe_weight': 1.0})",
+    "diversity_loss": "diversity_loss",
+    "contrastive_loss": "partial(contrastive_loss, {'margin': 1.0})",
+    "router_load_balance_loss": "router_load_balance_loss",
+    "mse_loss": "partial(mse_loss, {'reduction': 'mean'})"
+  },
+  "include_loss": {
+    "mse_loss": 1.0,
+    "oe_loss": 1.0,
+    "diversity_loss": 1.0,
+    "router_load_balance_loss": 1.0
+  },
+  "metric_map": {
+    "auprc": "auprc",
+    "accuracy": "accuracy_score",
+    "f1": "f1_score",
+    "precision": "precision",
+    "recall": "recall",
+    "roc_auc": "roc_auc"
+  },
+  "include_metrics": [
+    "roc_auc",
+    "auprc"
+  ],
+  "metrics_on_training": false,
+  "use_amp": true,
+  "ratio_sampler": false,
+  "best_metric": "auprc",
+  "greater_is_better": true,
+  "scheduler": "<torch.optim.lr_scheduler.CosineAnnealingLR object at 0x7fd8952185c0>",
+  "gradient_clipping": 5.0,
+  "track_lr_rate": true,
+  "early_stopping": true,
+  "early_stopping_patience": 20,
+  "early_stopping_tolerance": 1e-06,
+  "early_stopping_metric": "auprc",
+  "early_stopping_greater_is_better": true,
+  "normalize_bottleneck": true,
+  "weight_mode": "running_norm",
+  "device": "cuda"
+}

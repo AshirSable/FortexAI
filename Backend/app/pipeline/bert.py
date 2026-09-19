@@ -26,6 +26,7 @@ from pathlib import Path
 
 import numpy as np
 import torch
+from ml_factory import MODEL_DIRECTORY_RELEASED
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 from app.pipeline import PipelinePhase
@@ -41,7 +42,6 @@ from app.type_store import (
     Verdict,
 )
 from app.type_store._error import InferenceError, ModelUnavailableError, PhaseError
-from ml_factory import MODEL_DIRECTORY_RELEASED
 
 MODEL_DIR = MODEL_DIRECTORY_RELEASED
 FALLBACK_TOKENIZER_NAME = "google/bert_uncased_L-2_H-128_A-2"

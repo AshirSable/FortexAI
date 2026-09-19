@@ -1,6 +1,7 @@
 import inspect
 from dataclasses import fields, is_dataclass
-from typing import Callable
+import re
+from typing import Callable, Literal
 
 import torch
 import torch.nn.functional as F
@@ -25,15 +26,72 @@ def create_ctx_context(X: torch.Tensor, y: torch.Tensor, result: ModelResult) ->
     return ctx
 
 
-class LossEngine(EvaluationEngine):
-    def __init__(self, loss_map: dict[str, Callable], include_loss: dict[str, float]):
+def _sanitize_name(name: str) -> str:
+    """Buffer/parameter names can't contain '.' or other special chars."""
+    return re.sub(r"\W", "_", name)
+
+
+class LossEngine(torch.nn.Module, EvaluationEngine):
+    def __init__(
+        self,
+        loss_map: dict[str, Callable],
+        include_loss: dict[str, float],
+        weight_mode: Literal["static", "uncertainty", "running_norm"] = "static",
+        norm_momentum: float = 0.9,
+    ):
+        super().__init__()
         self.loss_map = loss_map
         self.include_loss = include_loss
+        self.weight_mode: Literal["static", "uncertainty", "running_norm"] = weight_mode
+        self.norm_momentum = norm_momentum
 
         self.__param_cache = {
             name: set(inspect.signature(fn).parameters.keys())
             for name, fn in loss_map.items()
         }
+
+        active_losses = [name for name, w in include_loss.items() if w > 0]
+        self._name_map = {name: _sanitize_name(name) for name in active_losses}
+        if weight_mode == "uncertainty":
+            self.log_vars = torch.nn.ParameterDict(
+                {name: torch.nn.Parameter(torch.zeros(())) for name in active_losses}
+            )
+        elif weight_mode == "running_norm":
+            for name in active_losses:
+                self.register_buffer(f"_norm_{self._name_map[name]}", torch.tensor(1.0))
+
+    def _get_norm_buf(self, loss_name: str) -> torch.Tensor:
+        return getattr(self, f"_norm_{self._name_map[loss_name]}")
+
+    def _set_norm_buf(self, loss_name: str, value: torch.Tensor) -> None:
+        setattr(self, f"_norm_{self._name_map[loss_name]}", value)
+
+    def _weighted(self, loss_name: str, loss_val: torch.Tensor) -> torch.Tensor:
+        static_weight = self.include_loss[loss_name]
+
+        if self.weight_mode == "static":
+            return loss_val * static_weight
+
+        if self.weight_mode == "uncertainty":
+            log_var = self.log_vars[loss_name]
+            precision = torch.exp(-log_var)
+
+            return static_weight * (precision * loss_val + log_var)
+
+        if self.weight_mode == "running_norm":
+            with torch.no_grad():
+                running = self._get_norm_buf(loss_name)
+                updated = (
+                    self.norm_momentum * running
+                    + (1 - self.norm_momentum) * loss_val.detach().float()
+                )
+                self._set_norm_buf(loss_name, updated)
+
+                normalizer = updated.clamp(min=1e-2)
+                effective_denom = (static_weight / normalizer).clamp(max=100)
+            return loss_val * effective_denom
+
+        raise ValueError(f"unknown weight_mode: {self.weight_mode}")
 
     def compute(self, ctx: dict) -> tuple[torch.Tensor, dict[str, torch.Tensor]]:
         total_loss = torch.tensor(0.0, device=ctx["X"].device)
@@ -49,13 +107,79 @@ class LossEngine(EvaluationEngine):
             filtered_kwargs = {k: v for k, v in ctx.items() if k in fn_params}
 
             loss_val = loss_fn(**filtered_kwargs)
-            total_loss = total_loss + (
-                loss_val
-                * torch.tensor(weight, dtype=torch.float32, device=loss_val.device)
-            )
+
+            if torch.isnan(loss_val).any() or torch.isinf(loss_val).any():
+                print(f"{loss_name} bad loss val: {loss_val}")
+            weighted = self._weighted(loss_name=loss_name, loss_val=loss_val)
+            total_loss = total_loss + weighted
             component_loss[loss_name] = loss_val.detach()
 
         return total_loss, component_loss
+
+    def get_current_weights(self) -> dict[str, float]:
+        weights = {}
+        for name, static_weight in self.include_loss.items():
+            if static_weight <= 0 or name not in self.loss_map:
+                continue
+
+            if self.weight_mode == "static":
+                weights[name] = static_weight
+            elif self.weight_mode == "uncertainty":
+                weights[name] = torch.exp(-self.log_vars[name]).detach().item()
+            elif self.weight_mode == "running_norm":
+                weights[name] = (
+                    (static_weight / self._get_norm_buf(name).clamp(min=1e-2).detach())
+                    .clamp(max=100.0)
+                    .item()
+                )
+
+        return weights
+
+
+class ClassSplitMetricsEngine:
+    def __init__(self, metrics_fns: dict[str, Callable]):
+        self.metrics_fns = metrics_fns
+
+    def compute(self, ctx: dict) -> dict[str, torch.Tensor]:
+        out = {}
+        for fn in self.metrics_fns.values():
+            out.update(
+                fn(
+                    **{
+                        k: v
+                        for k, v in ctx.items()
+                        if k in inspect.signature(fn).parameters
+                    }
+                )
+            )
+
+        return out
+
+
+def mse_metrics(X_hat, X, y, **_) -> dict[str, torch.Tensor]:
+    per_sample = ((X_hat - X) ** 2).mean(dim=1)
+
+    benign_mask, attack_mask = y == 0, y == 1
+
+    return {
+        "mse_benign_sum": per_sample[benign_mask].sum(),
+        "mse_benign_count": benign_mask.sum().float(),
+        "mse_attack_sum": per_sample[attack_mask].sum(),
+        "mse_attack_count": attack_mask.sum().float(),
+    }
+
+
+def oe_metric(X_hat, X, y, **_) -> dict[str, torch.Tensor]:
+    per_sample = ((X_hat - X) ** 2).mean(dim=1)
+
+    benign_mask, attack_mask = y == 0, y == 1
+
+    return {
+        "oe_benign_sum": per_sample[benign_mask].sum(),
+        "oe_benign_count": benign_mask.sum().float(),
+        "oe_attack_sum": per_sample[attack_mask].sum(),
+        "oe_attack_count": attack_mask.sum().float(),
+    }
 
 
 def compute_oe_loss(
@@ -101,7 +225,7 @@ def diversity_loss(experts: torch.Tensor, **_):
 
     off_diag_sim = sim_matrix[:, mask].view(experts.size(0), -1)
 
-    return off_diag_sim.mean()
+    return off_diag_sim.pow(2).mean()
 
 
 def contrastive_loss(z: torch.Tensor, y: torch.Tensor, margin=1.0, **_):
@@ -118,8 +242,10 @@ def contrastive_loss(z: torch.Tensor, y: torch.Tensor, margin=1.0, **_):
     benign_term = benign_dist.mean()
 
     if attack_mask.any():
-        attack_dist = ((z[attack_mask] - benign_centroid) ** 2).sum(dim=1)
-        attack_term = torch.clamp(margin - attack_dist, min=0).mean()
+        attack_dist = (
+            ((z[attack_mask] - benign_centroid) ** 2).sum(dim=1) + 1e-4
+        ).sqrt()
+        attack_term = torch.clamp(margin - attack_dist, min=0).pow(2).mean()
     else:
         attack_term = torch.tensor(0.0, device=z.device)
 
