@@ -1,8 +1,7 @@
 import json
 import time
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
-from functools import partial
 from typing import Optional
 
 import torch
@@ -18,6 +17,7 @@ from ml_factory.training_scripts.training_script_ae_structural import (
     training_attack_malleable,
 )
 from ml_factory.utils import (
+    CONFIG,
     ModelSaver,
     Tracker,
     embedding_text,
@@ -25,46 +25,7 @@ from ml_factory.utils import (
 from ml_factory.utils.plotter import plotting_logs
 from ml_factory.utils.qol import ResultLoaders, load_dataset_template
 from ml_factory.utils.structural_extractor import StructuralExtractor
-
-
-@dataclass
-class CONFIG:
-    loss_map: dict
-    include_loss: dict
-    metrics_map: dict
-    include_metrics: list
-    best_metric: str
-    best_metric_condition: str
-
-    batch_size: int = 200
-    seed: int = 3123
-    train_ratio: float = 0.7
-    test_ratio: float = 0.15
-    validation_ratio: float = 0.15
-    epoch: int = 200
-    attack_ratio: float = 0.2
-    ratio_sampler: bool = False
-    embedding_model: str = "nomic-embed-text"
-
-    device: str = field(
-        default_factory=lambda: "cuda" if torch.cuda.is_available() else "cpu"
-    )
-
-    def _serialize_value(self, val):
-        if isinstance(val, partial):
-            fn_name = getattr(val.func, "__name__", str(val.func))
-            return f"partial({fn_name}, {val.keywords})"
-        elif callable(val):
-            return getattr(val, "__name__", str(val))
-        elif isinstance(val, dict):
-            return {k: self._serialize_value(v) for k, v in val.items()}
-        elif isinstance(val, list):
-            return [self._serialize_value(v) for v in val]
-        return val
-
-    def get_dict(self) -> dict:
-        raw_dict = asdict(self)
-        return self._serialize_value(raw_dict)
+from ml_factory.utils.trainer import TrainerArgs
 
 
 @dataclass
@@ -198,6 +159,19 @@ def config_print(config: CONFIG):
     print("current seed: ", config.seed)
 
     print("current device: ", config.device)
+
+
+def autoencoder_training_using(loaders: ResultLoaders, training_args: TrainerArgs):
+
+    training_start = time.time()
+
+    start_time = time.time()
+    print(
+        "#" * 20,
+        "\n",
+        datetime.now(),
+        f"Training Started for MODEL: {training_args.model.__class__.__name__}, Instance {training_start}",
+    )
 
 
 def autoencoder_training(
