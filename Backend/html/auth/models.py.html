@@ -1,0 +1,182 @@
+<html><body><h1>auth/models.py</h1>Killed 0 out of 17 mutants<h2>Survived</h2>Survived mutation testing. These mutants show holes in your test suite.<h3>Mutant 1</h3><pre>--- auth/models.py
++++ auth/models.py
+@@ -6,7 +6,7 @@
+ 
+ 
+ class User(Base):
+-    __tablename__ = "users"
++    __tablename__ = "XXusersXX"
+ 
+     id = Column(Integer, primary_key=True, index=True)
+     name = Column(String, nullable=False)
+</pre><h3>Mutant 2</h3><pre>--- auth/models.py
++++ auth/models.py
+@@ -6,7 +6,7 @@
+ 
+ 
+ class User(Base):
+-    __tablename__ = "users"
++    __tablename__ = None
+ 
+     id = Column(Integer, primary_key=True, index=True)
+     name = Column(String, nullable=False)
+</pre><h3>Mutant 3</h3><pre>--- auth/models.py
++++ auth/models.py
+@@ -8,7 +8,7 @@
+ class User(Base):
+     __tablename__ = "users"
+ 
+-    id = Column(Integer, primary_key=True, index=True)
++    id = Column(Integer, primary_key=False, index=True)
+     name = Column(String, nullable=False)
+     email = Column(String, unique=True, index=True, nullable=False)
+     company = Column(String, nullable=True)
+</pre><h3>Mutant 4</h3><pre>--- auth/models.py
++++ auth/models.py
+@@ -8,7 +8,7 @@
+ class User(Base):
+     __tablename__ = "users"
+ 
+-    id = Column(Integer, primary_key=True, index=True)
++    id = Column(Integer, primary_key=True, index=False)
+     name = Column(String, nullable=False)
+     email = Column(String, unique=True, index=True, nullable=False)
+     company = Column(String, nullable=True)
+</pre><h3>Mutant 5</h3><pre>--- auth/models.py
++++ auth/models.py
+@@ -8,7 +8,7 @@
+ class User(Base):
+     __tablename__ = "users"
+ 
+-    id = Column(Integer, primary_key=True, index=True)
++    id = None
+     name = Column(String, nullable=False)
+     email = Column(String, unique=True, index=True, nullable=False)
+     company = Column(String, nullable=True)
+</pre><h3>Mutant 6</h3><pre>--- auth/models.py
++++ auth/models.py
+@@ -9,7 +9,7 @@
+     __tablename__ = "users"
+ 
+     id = Column(Integer, primary_key=True, index=True)
+-    name = Column(String, nullable=False)
++    name = Column(String, nullable=True)
+     email = Column(String, unique=True, index=True, nullable=False)
+     company = Column(String, nullable=True)
+     password_hash = Column(String, nullable=False)
+</pre><h3>Mutant 7</h3><pre>--- auth/models.py
++++ auth/models.py
+@@ -9,7 +9,7 @@
+     __tablename__ = "users"
+ 
+     id = Column(Integer, primary_key=True, index=True)
+-    name = Column(String, nullable=False)
++    name = None
+     email = Column(String, unique=True, index=True, nullable=False)
+     company = Column(String, nullable=True)
+     password_hash = Column(String, nullable=False)
+</pre><h3>Mutant 8</h3><pre>--- auth/models.py
++++ auth/models.py
+@@ -10,7 +10,7 @@
+ 
+     id = Column(Integer, primary_key=True, index=True)
+     name = Column(String, nullable=False)
+-    email = Column(String, unique=True, index=True, nullable=False)
++    email = Column(String, unique=False, index=True, nullable=False)
+     company = Column(String, nullable=True)
+     password_hash = Column(String, nullable=False)
+     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+</pre><h3>Mutant 9</h3><pre>--- auth/models.py
++++ auth/models.py
+@@ -10,7 +10,7 @@
+ 
+     id = Column(Integer, primary_key=True, index=True)
+     name = Column(String, nullable=False)
+-    email = Column(String, unique=True, index=True, nullable=False)
++    email = Column(String, unique=True, index=False, nullable=False)
+     company = Column(String, nullable=True)
+     password_hash = Column(String, nullable=False)
+     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+</pre><h3>Mutant 10</h3><pre>--- auth/models.py
++++ auth/models.py
+@@ -10,7 +10,7 @@
+ 
+     id = Column(Integer, primary_key=True, index=True)
+     name = Column(String, nullable=False)
+-    email = Column(String, unique=True, index=True, nullable=False)
++    email = Column(String, unique=True, index=True, nullable=True)
+     company = Column(String, nullable=True)
+     password_hash = Column(String, nullable=False)
+     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+</pre><h3>Mutant 11</h3><pre>--- auth/models.py
++++ auth/models.py
+@@ -10,7 +10,7 @@
+ 
+     id = Column(Integer, primary_key=True, index=True)
+     name = Column(String, nullable=False)
+-    email = Column(String, unique=True, index=True, nullable=False)
++    email = None
+     company = Column(String, nullable=True)
+     password_hash = Column(String, nullable=False)
+     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+</pre><h3>Mutant 12</h3><pre>--- auth/models.py
++++ auth/models.py
+@@ -11,7 +11,7 @@
+     id = Column(Integer, primary_key=True, index=True)
+     name = Column(String, nullable=False)
+     email = Column(String, unique=True, index=True, nullable=False)
+-    company = Column(String, nullable=True)
++    company = Column(String, nullable=False)
+     password_hash = Column(String, nullable=False)
+     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+ 
+</pre><h3>Mutant 13</h3><pre>--- auth/models.py
++++ auth/models.py
+@@ -11,7 +11,7 @@
+     id = Column(Integer, primary_key=True, index=True)
+     name = Column(String, nullable=False)
+     email = Column(String, unique=True, index=True, nullable=False)
+-    company = Column(String, nullable=True)
++    company = None
+     password_hash = Column(String, nullable=False)
+     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+ 
+</pre><h3>Mutant 14</h3><pre>--- auth/models.py
++++ auth/models.py
+@@ -12,6 +12,6 @@
+     name = Column(String, nullable=False)
+     email = Column(String, unique=True, index=True, nullable=False)
+     company = Column(String, nullable=True)
+-    password_hash = Column(String, nullable=False)
++    password_hash = Column(String, nullable=True)
+     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+ 
+</pre><h3>Mutant 15</h3><pre>--- auth/models.py
++++ auth/models.py
+@@ -12,6 +12,6 @@
+     name = Column(String, nullable=False)
+     email = Column(String, unique=True, index=True, nullable=False)
+     company = Column(String, nullable=True)
+-    password_hash = Column(String, nullable=False)
++    password_hash = None
+     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+ 
+</pre><h3>Mutant 16</h3><pre>--- auth/models.py
++++ auth/models.py
+@@ -13,5 +13,5 @@
+     email = Column(String, unique=True, index=True, nullable=False)
+     company = Column(String, nullable=True)
+     password_hash = Column(String, nullable=False)
+-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
++    created_at = Column(DateTime, default=lambda: None)
+ 
+</pre><h3>Mutant 17</h3><pre>--- auth/models.py
++++ auth/models.py
+@@ -13,5 +13,5 @@
+     email = Column(String, unique=True, index=True, nullable=False)
+     company = Column(String, nullable=True)
+     password_hash = Column(String, nullable=False)
+-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
++    created_at = None
+ 
+</pre></body></html>

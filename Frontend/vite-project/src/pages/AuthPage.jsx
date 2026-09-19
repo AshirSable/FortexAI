@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import fortexLogo from '../assets/fortexai-logo.png';
-import { useToast } from '../components/Toast';
-import { useAuth } from '../context/AuthContext';
+import { useToast } from '../components/ToastContext';
+import { useAuth } from '../context/auth-context';
 import './AuthPage.css';
 
 function EyeIcon({ open }) {

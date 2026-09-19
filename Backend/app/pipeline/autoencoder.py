@@ -46,6 +46,13 @@ from app.type_store._error import InferenceError, ModelUnavailableError, PhaseEr
 # the only autoencoder checkpoint currently in the repo (added 2026-09-17).
 MODEL_PATH = MODEL_DIRECTORY_RELEASED / "NormalityAE_1788973962.4063935.pt"
 
+# the StandardScaler (per-feature mean/std) fit on the training data before
+# training this exact checkpoint - see ml_factory/training_scripts/scripts_normality_ae.py,
+# which standardizes the 777-dim embedding+structural vector before it ever
+# reaches the model. Without this, reconstruction error is dominated by the
+# raw (unstandardized) structural features and is meaningless.
+SCALER_PATH = MODEL_DIRECTORY_RELEASED / "SCALER_FILE_FOR_FULL_SEED_3123.pt"
+
 # matches the checkpoint's tensor shapes exactly (see summary): a 768-dim
 # embedding plus 9 structural features, 8 experts, top-2 bottleneck of 64.
 # expert_k=2 is the Args default and can't be verified from the checkpoint's
@@ -66,6 +73,7 @@ class AutoEncoderPipeline(PipelinePhase):
     def __init__(
         self,
         model_path: Path = MODEL_PATH,
+        scaler_path: Path = SCALER_PATH,
         low_error_threshold: float = LOW_ERROR_THRESHOLD,
         high_error_threshold: float = HIGH_ERROR_THRESHOLD,
     ):
@@ -76,10 +84,15 @@ class AutoEncoderPipeline(PipelinePhase):
                 f"autoencoder checkpoint not found at {model_path}"
             )
 
+        if not Path(scaler_path).is_file():
+            raise ModelUnavailableError(
+                f"autoencoder standard scaler not found at {scaler_path}"
+            )
+
         self.low_error_threshold = low_error_threshold
         self.high_error_threshold = high_error_threshold
         self.structural_extractor = StructuralExtractor()
-        self.standard_scaler = StandardScaler.load()
+        self.standard_scaler = StandardScaler.load(scaler_path)
 
         self.model = NormalityAE(input_dim=AE_INPUT_DIM, args=AE_ARGS)
         checkpoint = torch.load(model_path, map_location="cpu", weights_only=False)

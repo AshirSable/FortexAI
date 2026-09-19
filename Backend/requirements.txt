@@ -14,3 +14,4 @@ PyJWT
 sqlalchemy
 transformers
 nltk
+httpx

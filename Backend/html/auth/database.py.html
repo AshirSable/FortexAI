@@ -1,0 +1,133 @@
+<html><body><h1>auth/database.py</h1>Killed 0 out of 12 mutants<h2>Survived</h2>Survived mutation testing. These mutants show holes in your test suite.<h3>Mutant 18</h3><pre>--- auth/database.py
++++ auth/database.py
+@@ -2,7 +2,7 @@
+ from sqlalchemy import create_engine
+ from sqlalchemy.orm import declarative_base, sessionmaker
+ 
+-DB_PATH = os.path.join(os.path.dirname(__file__), "auth.db")
++DB_PATH = os.path.join(os.path.dirname(__file__), "XXauth.dbXX")
+ DATABASE_URL = f"sqlite:///{DB_PATH}"
+ 
+ engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+</pre><h3>Mutant 19</h3><pre>--- auth/database.py
++++ auth/database.py
+@@ -2,7 +2,7 @@
+ from sqlalchemy import create_engine
+ from sqlalchemy.orm import declarative_base, sessionmaker
+ 
+-DB_PATH = os.path.join(os.path.dirname(__file__), "auth.db")
++DB_PATH = None
+ DATABASE_URL = f"sqlite:///{DB_PATH}"
+ 
+ engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+</pre><h3>Mutant 20</h3><pre>--- auth/database.py
++++ auth/database.py
+@@ -3,7 +3,7 @@
+ from sqlalchemy.orm import declarative_base, sessionmaker
+ 
+ DB_PATH = os.path.join(os.path.dirname(__file__), "auth.db")
+-DATABASE_URL = f"sqlite:///{DB_PATH}"
++DATABASE_URL = f"XXsqlite:///{DB_PATH}XX"
+ 
+ engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+</pre><h3>Mutant 21</h3><pre>--- auth/database.py
++++ auth/database.py
+@@ -3,7 +3,7 @@
+ from sqlalchemy.orm import declarative_base, sessionmaker
+ 
+ DB_PATH = os.path.join(os.path.dirname(__file__), "auth.db")
+-DATABASE_URL = f"sqlite:///{DB_PATH}"
++DATABASE_URL = None
+ 
+ engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+</pre><h3>Mutant 22</h3><pre>--- auth/database.py
++++ auth/database.py
+@@ -5,7 +5,7 @@
+ DB_PATH = os.path.join(os.path.dirname(__file__), "auth.db")
+ DATABASE_URL = f"sqlite:///{DB_PATH}"
+ 
+-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
++engine = create_engine(DATABASE_URL, connect_args={"XXcheck_same_threadXX": False})
+ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+ 
+ Base = declarative_base()
+</pre><h3>Mutant 23</h3><pre>--- auth/database.py
++++ auth/database.py
+@@ -5,7 +5,7 @@
+ DB_PATH = os.path.join(os.path.dirname(__file__), "auth.db")
+ DATABASE_URL = f"sqlite:///{DB_PATH}"
+ 
+-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
++engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": True})
+ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+ 
+ Base = declarative_base()
+</pre><h3>Mutant 24</h3><pre>--- auth/database.py
++++ auth/database.py
+@@ -5,7 +5,7 @@
+ DB_PATH = os.path.join(os.path.dirname(__file__), "auth.db")
+ DATABASE_URL = f"sqlite:///{DB_PATH}"
+ 
+-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
++engine = None
+ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+ 
+ Base = declarative_base()
+</pre><h3>Mutant 25</h3><pre>--- auth/database.py
++++ auth/database.py
+@@ -6,7 +6,7 @@
+ DATABASE_URL = f"sqlite:///{DB_PATH}"
+ 
+ engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
++SessionLocal = sessionmaker(autocommit=True, autoflush=False, bind=engine)
+ 
+ Base = declarative_base()
+ 
+</pre><h3>Mutant 26</h3><pre>--- auth/database.py
++++ auth/database.py
+@@ -6,7 +6,7 @@
+ DATABASE_URL = f"sqlite:///{DB_PATH}"
+ 
+ engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
++SessionLocal = sessionmaker(autocommit=False, autoflush=True, bind=engine)
+ 
+ Base = declarative_base()
+ 
+</pre><h3>Mutant 27</h3><pre>--- auth/database.py
++++ auth/database.py
+@@ -6,7 +6,7 @@
+ DATABASE_URL = f"sqlite:///{DB_PATH}"
+ 
+ engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
++SessionLocal = None
+ 
+ Base = declarative_base()
+ 
+</pre><h3>Mutant 28</h3><pre>--- auth/database.py
++++ auth/database.py
+@@ -8,7 +8,7 @@
+ engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+ 
+-Base = declarative_base()
++Base = None
+ 
+ 
+ def init_db():
+</pre><h3>Mutant 29</h3><pre>--- auth/database.py
++++ auth/database.py
+@@ -17,7 +17,7 @@
+ 
+ 
+ def get_db():
+-    db = SessionLocal()
++    db = None
+     try:
+         yield db
+     finally:
+</pre></body></html>

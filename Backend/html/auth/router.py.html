@@ -1,0 +1,413 @@
+<html><body><h1>auth/router.py</h1>Killed 0 out of 37 mutants<h2>Survived</h2>Survived mutation testing. These mutants show holes in your test suite.<h3>Mutant 83</h3><pre>--- auth/router.py
++++ auth/router.py
+@@ -7,7 +7,7 @@
+ from .schemas import LoginRequest, SignupRequest, TokenResponse, UserOut
+ from .security import create_access_token, decode_access_token, hash_password, verify_password
+ 
+-router = APIRouter(prefix="/auth", tags=["auth"])
++router = APIRouter(prefix="XX/authXX", tags=["auth"])
+ bearer_scheme = HTTPBearer(auto_error=False)
+ 
+ 
+</pre><h3>Mutant 84</h3><pre>--- auth/router.py
++++ auth/router.py
+@@ -7,7 +7,7 @@
+ from .schemas import LoginRequest, SignupRequest, TokenResponse, UserOut
+ from .security import create_access_token, decode_access_token, hash_password, verify_password
+ 
+-router = APIRouter(prefix="/auth", tags=["auth"])
++router = APIRouter(prefix="/auth", tags=["XXauthXX"])
+ bearer_scheme = HTTPBearer(auto_error=False)
+ 
+ 
+</pre><h3>Mutant 85</h3><pre>--- auth/router.py
++++ auth/router.py
+@@ -7,7 +7,7 @@
+ from .schemas import LoginRequest, SignupRequest, TokenResponse, UserOut
+ from .security import create_access_token, decode_access_token, hash_password, verify_password
+ 
+-router = APIRouter(prefix="/auth", tags=["auth"])
++router = None
+ bearer_scheme = HTTPBearer(auto_error=False)
+ 
+ 
+</pre><h3>Mutant 86</h3><pre>--- auth/router.py
++++ auth/router.py
+@@ -8,7 +8,7 @@
+ from .security import create_access_token, decode_access_token, hash_password, verify_password
+ 
+ router = APIRouter(prefix="/auth", tags=["auth"])
+-bearer_scheme = HTTPBearer(auto_error=False)
++bearer_scheme = HTTPBearer(auto_error=True)
+ 
+ 
+ def get_current_user(
+</pre><h3>Mutant 87</h3><pre>--- auth/router.py
++++ auth/router.py
+@@ -8,7 +8,7 @@
+ from .security import create_access_token, decode_access_token, hash_password, verify_password
+ 
+ router = APIRouter(prefix="/auth", tags=["auth"])
+-bearer_scheme = HTTPBearer(auto_error=False)
++bearer_scheme = None
+ 
+ 
+ def get_current_user(
+</pre><h3>Mutant 88</h3><pre>--- auth/router.py
++++ auth/router.py
+@@ -15,7 +15,7 @@
+     credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
+     db: Session = Depends(get_db),
+ ) -> User:
+-    if credentials is None:
++    if credentials is not None:
+         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+     user_id = decode_access_token(credentials.credentials)
+     if user_id is None:
+</pre><h3>Mutant 89</h3><pre>--- auth/router.py
++++ auth/router.py
+@@ -16,7 +16,7 @@
+     db: Session = Depends(get_db),
+ ) -> User:
+     if credentials is None:
+-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
++        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="XXNot authenticatedXX")
+     user_id = decode_access_token(credentials.credentials)
+     if user_id is None:
+         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token")
+</pre><h3>Mutant 90</h3><pre>--- auth/router.py
++++ auth/router.py
+@@ -17,7 +17,7 @@
+ ) -> User:
+     if credentials is None:
+         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+-    user_id = decode_access_token(credentials.credentials)
++    user_id = None
+     if user_id is None:
+         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token")
+     user = db.query(User).filter(User.id == user_id).first()
+</pre><h3>Mutant 91</h3><pre>--- auth/router.py
++++ auth/router.py
+@@ -18,7 +18,7 @@
+     if credentials is None:
+         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+     user_id = decode_access_token(credentials.credentials)
+-    if user_id is None:
++    if user_id is not None:
+         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token")
+     user = db.query(User).filter(User.id == user_id).first()
+     if user is None:
+</pre><h3>Mutant 92</h3><pre>--- auth/router.py
++++ auth/router.py
+@@ -19,7 +19,7 @@
+         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+     user_id = decode_access_token(credentials.credentials)
+     if user_id is None:
+-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token")
++        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="XXInvalid or expired tokenXX")
+     user = db.query(User).filter(User.id == user_id).first()
+     if user is None:
+         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+</pre><h3>Mutant 93</h3><pre>--- auth/router.py
++++ auth/router.py
+@@ -20,7 +20,7 @@
+     user_id = decode_access_token(credentials.credentials)
+     if user_id is None:
+         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token")
+-    user = db.query(User).filter(User.id == user_id).first()
++    user = db.query(User).filter(User.id != user_id).first()
+     if user is None:
+         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+     return user
+</pre><h3>Mutant 94</h3><pre>--- auth/router.py
++++ auth/router.py
+@@ -20,7 +20,7 @@
+     user_id = decode_access_token(credentials.credentials)
+     if user_id is None:
+         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token")
+-    user = db.query(User).filter(User.id == user_id).first()
++    user = None
+     if user is None:
+         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+     return user
+</pre><h3>Mutant 95</h3><pre>--- auth/router.py
++++ auth/router.py
+@@ -21,7 +21,7 @@
+     if user_id is None:
+         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token")
+     user = db.query(User).filter(User.id == user_id).first()
+-    if user is None:
++    if user is not None:
+         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+     return user
+ 
+</pre><h3>Mutant 96</h3><pre>--- auth/router.py
++++ auth/router.py
+@@ -22,7 +22,7 @@
+         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token")
+     user = db.query(User).filter(User.id == user_id).first()
+     if user is None:
+-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
++        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="XXUser not foundXX")
+     return user
+ 
+ 
+</pre><h3>Mutant 97</h3><pre>--- auth/router.py
++++ auth/router.py
+@@ -26,7 +26,7 @@
+     return user
+ 
+ 
+-@router.post("/signup", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
++@router.post("XX/signupXX", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
+ def signup(payload: SignupRequest, db: Session = Depends(get_db)):
+     existing = db.query(User).filter(User.email == payload.email).first()
+     if existing is not None:
+</pre><h3>Mutant 98</h3><pre>--- auth/router.py
++++ auth/router.py
+@@ -25,8 +25,6 @@
+         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+     return user
+ 
+-
+-@router.post("/signup", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
+ def signup(payload: SignupRequest, db: Session = Depends(get_db)):
+     existing = db.query(User).filter(User.email == payload.email).first()
+     if existing is not None:
+</pre><h3>Mutant 99</h3><pre>--- auth/router.py
++++ auth/router.py
+@@ -28,7 +28,7 @@
+ 
+ @router.post("/signup", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
+ def signup(payload: SignupRequest, db: Session = Depends(get_db)):
+-    existing = db.query(User).filter(User.email == payload.email).first()
++    existing = db.query(User).filter(User.email != payload.email).first()
+     if existing is not None:
+         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="An account with this email already exists")
+ 
+</pre><h3>Mutant 100</h3><pre>--- auth/router.py
++++ auth/router.py
+@@ -28,7 +28,7 @@
+ 
+ @router.post("/signup", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
+ def signup(payload: SignupRequest, db: Session = Depends(get_db)):
+-    existing = db.query(User).filter(User.email == payload.email).first()
++    existing = None
+     if existing is not None:
+         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="An account with this email already exists")
+ 
+</pre><h3>Mutant 101</h3><pre>--- auth/router.py
++++ auth/router.py
+@@ -29,7 +29,7 @@
+ @router.post("/signup", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
+ def signup(payload: SignupRequest, db: Session = Depends(get_db)):
+     existing = db.query(User).filter(User.email == payload.email).first()
+-    if existing is not None:
++    if existing is  None:
+         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="An account with this email already exists")
+ 
+     user = User(
+</pre><h3>Mutant 102</h3><pre>--- auth/router.py
++++ auth/router.py
+@@ -30,7 +30,7 @@
+ def signup(payload: SignupRequest, db: Session = Depends(get_db)):
+     existing = db.query(User).filter(User.email == payload.email).first()
+     if existing is not None:
+-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="An account with this email already exists")
++        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="XXAn account with this email already existsXX")
+ 
+     user = User(
+         name=payload.name,
+</pre><h3>Mutant 103</h3><pre>--- auth/router.py
++++ auth/router.py
+@@ -32,12 +32,7 @@
+     if existing is not None:
+         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="An account with this email already exists")
+ 
+-    user = User(
+-        name=payload.name,
+-        email=payload.email,
+-        company=payload.company,
+-        password_hash=hash_password(payload.password),
+-    )
++    user = None
+     db.add(user)
+     db.commit()
+     db.refresh(user)
+</pre><h3>Mutant 104</h3><pre>--- auth/router.py
++++ auth/router.py
+@@ -42,7 +42,7 @@
+     db.commit()
+     db.refresh(user)
+ 
+-    token = create_access_token(user.id)
++    token = None
+     return TokenResponse(access_token=token, user=UserOut.model_validate(user))
+ 
+ 
+</pre><h3>Mutant 105</h3><pre>--- auth/router.py
++++ auth/router.py
+@@ -46,7 +46,7 @@
+     return TokenResponse(access_token=token, user=UserOut.model_validate(user))
+ 
+ 
+-@router.post("/login", response_model=TokenResponse)
++@router.post("XX/loginXX", response_model=TokenResponse)
+ def login(payload: LoginRequest, db: Session = Depends(get_db)):
+     user = db.query(User).filter(User.email == payload.email).first()
+     if user is None or not verify_password(payload.password, user.password_hash):
+</pre><h3>Mutant 106</h3><pre>--- auth/router.py
++++ auth/router.py
+@@ -45,8 +45,6 @@
+     token = create_access_token(user.id)
+     return TokenResponse(access_token=token, user=UserOut.model_validate(user))
+ 
+-
+-@router.post("/login", response_model=TokenResponse)
+ def login(payload: LoginRequest, db: Session = Depends(get_db)):
+     user = db.query(User).filter(User.email == payload.email).first()
+     if user is None or not verify_password(payload.password, user.password_hash):
+</pre><h3>Mutant 107</h3><pre>--- auth/router.py
++++ auth/router.py
+@@ -48,7 +48,7 @@
+ 
+ @router.post("/login", response_model=TokenResponse)
+ def login(payload: LoginRequest, db: Session = Depends(get_db)):
+-    user = db.query(User).filter(User.email == payload.email).first()
++    user = db.query(User).filter(User.email != payload.email).first()
+     if user is None or not verify_password(payload.password, user.password_hash):
+         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password")
+ 
+</pre><h3>Mutant 108</h3><pre>--- auth/router.py
++++ auth/router.py
+@@ -48,7 +48,7 @@
+ 
+ @router.post("/login", response_model=TokenResponse)
+ def login(payload: LoginRequest, db: Session = Depends(get_db)):
+-    user = db.query(User).filter(User.email == payload.email).first()
++    user = None
+     if user is None or not verify_password(payload.password, user.password_hash):
+         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password")
+ 
+</pre><h3>Mutant 109</h3><pre>--- auth/router.py
++++ auth/router.py
+@@ -49,7 +49,7 @@
+ @router.post("/login", response_model=TokenResponse)
+ def login(payload: LoginRequest, db: Session = Depends(get_db)):
+     user = db.query(User).filter(User.email == payload.email).first()
+-    if user is None or not verify_password(payload.password, user.password_hash):
++    if user is not None or not verify_password(payload.password, user.password_hash):
+         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password")
+ 
+     token = create_access_token(user.id)
+</pre><h3>Mutant 110</h3><pre>--- auth/router.py
++++ auth/router.py
+@@ -49,7 +49,7 @@
+ @router.post("/login", response_model=TokenResponse)
+ def login(payload: LoginRequest, db: Session = Depends(get_db)):
+     user = db.query(User).filter(User.email == payload.email).first()
+-    if user is None or not verify_password(payload.password, user.password_hash):
++    if user is None or  verify_password(payload.password, user.password_hash):
+         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password")
+ 
+     token = create_access_token(user.id)
+</pre><h3>Mutant 111</h3><pre>--- auth/router.py
++++ auth/router.py
+@@ -49,7 +49,7 @@
+ @router.post("/login", response_model=TokenResponse)
+ def login(payload: LoginRequest, db: Session = Depends(get_db)):
+     user = db.query(User).filter(User.email == payload.email).first()
+-    if user is None or not verify_password(payload.password, user.password_hash):
++    if user is None and not verify_password(payload.password, user.password_hash):
+         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password")
+ 
+     token = create_access_token(user.id)
+</pre><h3>Mutant 112</h3><pre>--- auth/router.py
++++ auth/router.py
+@@ -50,7 +50,7 @@
+ def login(payload: LoginRequest, db: Session = Depends(get_db)):
+     user = db.query(User).filter(User.email == payload.email).first()
+     if user is None or not verify_password(payload.password, user.password_hash):
+-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password")
++        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="XXInvalid email or passwordXX")
+ 
+     token = create_access_token(user.id)
+     return TokenResponse(access_token=token, user=UserOut.model_validate(user))
+</pre><h3>Mutant 113</h3><pre>--- auth/router.py
++++ auth/router.py
+@@ -52,7 +52,7 @@
+     if user is None or not verify_password(payload.password, user.password_hash):
+         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password")
+ 
+-    token = create_access_token(user.id)
++    token = None
+     return TokenResponse(access_token=token, user=UserOut.model_validate(user))
+ 
+ 
+</pre><h3>Mutant 114</h3><pre>--- auth/router.py
++++ auth/router.py
+@@ -56,7 +56,7 @@
+     return TokenResponse(access_token=token, user=UserOut.model_validate(user))
+ 
+ 
+-@router.post("/logout")
++@router.post("XX/logoutXX")
+ def logout(current_user: User = Depends(get_current_user)):
+     # Stateless JWT: the client discards the token. Endpoint exists so the
+     # frontend has a single call site and can be extended with a token
+</pre><h3>Mutant 115</h3><pre>--- auth/router.py
++++ auth/router.py
+@@ -55,8 +55,6 @@
+     token = create_access_token(user.id)
+     return TokenResponse(access_token=token, user=UserOut.model_validate(user))
+ 
+-
+-@router.post("/logout")
+ def logout(current_user: User = Depends(get_current_user)):
+     # Stateless JWT: the client discards the token. Endpoint exists so the
+     # frontend has a single call site and can be extended with a token
+</pre><h3>Mutant 116</h3><pre>--- auth/router.py
++++ auth/router.py
+@@ -61,7 +61,7 @@
+     # Stateless JWT: the client discards the token. Endpoint exists so the
+     # frontend has a single call site and can be extended with a token
+     # blacklist later without changing its interface.
+-    return {"detail": "Logged out"}
++    return {"XXdetailXX": "Logged out"}
+ 
+ 
+ @router.get("/me", response_model=UserOut)
+</pre><h3>Mutant 117</h3><pre>--- auth/router.py
++++ auth/router.py
+@@ -61,7 +61,7 @@
+     # Stateless JWT: the client discards the token. Endpoint exists so the
+     # frontend has a single call site and can be extended with a token
+     # blacklist later without changing its interface.
+-    return {"detail": "Logged out"}
++    return {"detail": "XXLogged outXX"}
+ 
+ 
+ @router.get("/me", response_model=UserOut)
+</pre><h3>Mutant 118</h3><pre>--- auth/router.py
++++ auth/router.py
+@@ -64,7 +64,7 @@
+     return {"detail": "Logged out"}
+ 
+ 
+-@router.get("/me", response_model=UserOut)
++@router.get("XX/meXX", response_model=UserOut)
+ def me(current_user: User = Depends(get_current_user)):
+     return UserOut.model_validate(current_user)
+ 
+</pre><h3>Mutant 119</h3><pre>--- auth/router.py
++++ auth/router.py
+@@ -63,8 +63,6 @@
+     # blacklist later without changing its interface.
+     return {"detail": "Logged out"}
+ 
+-
+-@router.get("/me", response_model=UserOut)
+ def me(current_user: User = Depends(get_current_user)):
+     return UserOut.model_validate(current_user)
+ 
+</pre></body></html>

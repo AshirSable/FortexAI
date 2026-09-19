@@ -1,3 +1,5 @@
+import time
+
 from auth.database import init_db
 from auth.router import router as auth_router
 from fastapi import FastAPI, HTTPException
@@ -58,6 +60,7 @@ class ScreenResponse(BaseModel):
     verdict: str  # "benign" or "attack" (never "undetermined" - the last stage always decides)
     phase: str  # which stage in the cascade produced this verdict
     confidence: float
+    latency_ms: float  # time from input received to verdict given, summed across every stage that ran
 
 
 @app.post("/screen", response_model=ScreenResponse)
@@ -67,12 +70,17 @@ def screen(request: ScreenRequest):
             status_code=503, detail="detection pipeline is not ready yet"
         )
 
+    start_time = time.perf_counter()
     result = detection_pipeline.run(PhaseInput(text=request.prompt))
 
     if result.is_err():
         # a stage broke - fail closed rather than letting the prompt through
+        elapsed_ms = (time.perf_counter() - start_time) * 1000
         return ScreenResponse(
-            verdict=Verdict.attack.name, phase="error", confidence=0.0
+            verdict=Verdict.attack.name,
+            phase="error",
+            confidence=0.0,
+            latency_ms=elapsed_ms,
         )
 
     success = result.unwrap()
@@ -80,4 +88,5 @@ def screen(request: ScreenRequest):
         verdict=success.verdict.name,
         phase=success.at_phase.name,
         confidence=success.confidence,
+        latency_ms=success.latency_ms,
     )

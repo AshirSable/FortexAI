@@ -1,0 +1,272 @@
+<html><body><h1>app/main.py</h1>Killed 0 out of 24 mutants<h2>Survived</h2>Survived mutation testing. These mutants show holes in your test suite.<h3>Mutant 120</h3><pre>--- app/main.py
++++ app/main.py
+@@ -11,7 +11,7 @@
+ from app.pipeline.semantic_search import SemanticSearchPipeline
+ from app.type_store import PhaseInput, Verdict
+ 
+-app = FastAPI()
++app = None
+ 
+ # built once at startup (see on_startup below), not per-request - the
+ # autoencoder and bert stages load a model into memory, so we don't want to
+</pre><h3>Mutant 121</h3><pre>--- app/main.py
++++ app/main.py
+@@ -16,7 +16,7 @@
+ # built once at startup (see on_startup below), not per-request - the
+ # autoencoder and bert stages load a model into memory, so we don't want to
+ # reload them on every call to /screen.
+-detection_pipeline: Pipeline | None = None
++detection_pipeline: Pipeline & None = None
+ 
+ app.add_middleware(
+     CORSMiddleware,
+</pre><h3>Mutant 122</h3><pre>--- app/main.py
++++ app/main.py
+@@ -16,7 +16,7 @@
+ # built once at startup (see on_startup below), not per-request - the
+ # autoencoder and bert stages load a model into memory, so we don't want to
+ # reload them on every call to /screen.
+-detection_pipeline: Pipeline | None = None
++detection_pipeline: Pipeline | None = ""
+ 
+ app.add_middleware(
+     CORSMiddleware,
+</pre><h3>Mutant 123</h3><pre>--- app/main.py
++++ app/main.py
+@@ -20,7 +20,7 @@
+ 
+ app.add_middleware(
+     CORSMiddleware,
+-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
++    allow_origins=["XXhttp://localhost:5173XX", "http://127.0.0.1:5173"],
+     allow_credentials=True,
+     allow_methods=["*"],
+     allow_headers=["*"],
+</pre><h3>Mutant 124</h3><pre>--- app/main.py
++++ app/main.py
+@@ -20,7 +20,7 @@
+ 
+ app.add_middleware(
+     CORSMiddleware,
+-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
++    allow_origins=["http://localhost:5173", "XXhttp://127.0.0.1:5173XX"],
+     allow_credentials=True,
+     allow_methods=["*"],
+     allow_headers=["*"],
+</pre><h3>Mutant 125</h3><pre>--- app/main.py
++++ app/main.py
+@@ -21,7 +21,7 @@
+ app.add_middleware(
+     CORSMiddleware,
+     allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+-    allow_credentials=True,
++    allow_credentials=False,
+     allow_methods=["*"],
+     allow_headers=["*"],
+ )
+</pre><h3>Mutant 126</h3><pre>--- app/main.py
++++ app/main.py
+@@ -22,7 +22,7 @@
+     CORSMiddleware,
+     allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+     allow_credentials=True,
+-    allow_methods=["*"],
++    allow_methods=["XX*XX"],
+     allow_headers=["*"],
+ )
+ 
+</pre><h3>Mutant 127</h3><pre>--- app/main.py
++++ app/main.py
+@@ -23,7 +23,7 @@
+     allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+     allow_credentials=True,
+     allow_methods=["*"],
+-    allow_headers=["*"],
++    allow_headers=["XX*XX"],
+ )
+ 
+ 
+</pre><h3>Mutant 128</h3><pre>--- app/main.py
++++ app/main.py
+@@ -27,7 +27,7 @@
+ )
+ 
+ 
+-@app.on_event("startup")
++@app.on_event("XXstartupXX")
+ def on_startup():
+     init_db()
+ 
+</pre><h3>Mutant 129</h3><pre>--- app/main.py
++++ app/main.py
+@@ -26,8 +26,6 @@
+     allow_headers=["*"],
+ )
+ 
+-
+-@app.on_event("startup")
+ def on_startup():
+     init_db()
+ 
+</pre><h3>Mutant 130</h3><pre>--- app/main.py
++++ app/main.py
+@@ -32,14 +32,7 @@
+     init_db()
+ 
+     global detection_pipeline
+-    detection_pipeline = Pipeline(
+-        [
+-            SemanticSearchPipeline(),
+-            AutoEncoderPipeline(),
+-            EnsembleBERTPipeline(),
+-            LLM_JudgePipeline(),
+-        ]
+-    )
++    detection_pipeline = None
+ 
+ 
+ app.include_router(auth_router)
+</pre><h3>Mutant 131</h3><pre>--- app/main.py
++++ app/main.py
+@@ -45,7 +45,7 @@
+ app.include_router(auth_router)
+ 
+ 
+-@app.get("/")
++@app.get("XX/XX")
+ def home():
+     return {"message": "Backend running!"}
+ 
+</pre><h3>Mutant 132</h3><pre>--- app/main.py
++++ app/main.py
+@@ -44,8 +44,6 @@
+ 
+ app.include_router(auth_router)
+ 
+-
+-@app.get("/")
+ def home():
+     return {"message": "Backend running!"}
+ 
+</pre><h3>Mutant 133</h3><pre>--- app/main.py
++++ app/main.py
+@@ -47,7 +47,7 @@
+ 
+ @app.get("/")
+ def home():
+-    return {"message": "Backend running!"}
++    return {"XXmessageXX": "Backend running!"}
+ 
+ 
+ class ScreenRequest(BaseModel):
+</pre><h3>Mutant 134</h3><pre>--- app/main.py
++++ app/main.py
+@@ -47,7 +47,7 @@
+ 
+ @app.get("/")
+ def home():
+-    return {"message": "Backend running!"}
++    return {"message": "XXBackend running!XX"}
+ 
+ 
+ class ScreenRequest(BaseModel):
+</pre><h3>Mutant 135</h3><pre>--- app/main.py
++++ app/main.py
+@@ -60,7 +60,7 @@
+     confidence: float
+ 
+ 
+-@app.post("/screen", response_model=ScreenResponse)
++@app.post("XX/screenXX", response_model=ScreenResponse)
+ def screen(request: ScreenRequest):
+     if detection_pipeline is None:
+         raise HTTPException(
+</pre><h3>Mutant 136</h3><pre>--- app/main.py
++++ app/main.py
+@@ -59,8 +59,6 @@
+     phase: str  # which stage in the cascade produced this verdict
+     confidence: float
+ 
+-
+-@app.post("/screen", response_model=ScreenResponse)
+ def screen(request: ScreenRequest):
+     if detection_pipeline is None:
+         raise HTTPException(
+</pre><h3>Mutant 137</h3><pre>--- app/main.py
++++ app/main.py
+@@ -62,7 +62,7 @@
+ 
+ @app.post("/screen", response_model=ScreenResponse)
+ def screen(request: ScreenRequest):
+-    if detection_pipeline is None:
++    if detection_pipeline is not None:
+         raise HTTPException(
+             status_code=503, detail="detection pipeline is not ready yet"
+         )
+</pre><h3>Mutant 138</h3><pre>--- app/main.py
++++ app/main.py
+@@ -64,7 +64,7 @@
+ def screen(request: ScreenRequest):
+     if detection_pipeline is None:
+         raise HTTPException(
+-            status_code=503, detail="detection pipeline is not ready yet"
++            status_code=504, detail="detection pipeline is not ready yet"
+         )
+ 
+     result = detection_pipeline.run(PhaseInput(text=request.prompt))
+</pre><h3>Mutant 139</h3><pre>--- app/main.py
++++ app/main.py
+@@ -64,7 +64,7 @@
+ def screen(request: ScreenRequest):
+     if detection_pipeline is None:
+         raise HTTPException(
+-            status_code=503, detail="detection pipeline is not ready yet"
++            status_code=503, detail="XXdetection pipeline is not ready yetXX"
+         )
+ 
+     result = detection_pipeline.run(PhaseInput(text=request.prompt))
+</pre><h3>Mutant 140</h3><pre>--- app/main.py
++++ app/main.py
+@@ -67,7 +67,7 @@
+             status_code=503, detail="detection pipeline is not ready yet"
+         )
+ 
+-    result = detection_pipeline.run(PhaseInput(text=request.prompt))
++    result = None
+ 
+     if result.is_err():
+         # a stage broke - fail closed rather than letting the prompt through
+</pre><h3>Mutant 141</h3><pre>--- app/main.py
++++ app/main.py
+@@ -72,7 +72,7 @@
+     if result.is_err():
+         # a stage broke - fail closed rather than letting the prompt through
+         return ScreenResponse(
+-            verdict=Verdict.attack.name, phase="error", confidence=0.0
++            verdict=Verdict.attack.name, phase="XXerrorXX", confidence=0.0
+         )
+ 
+     success = result.unwrap()
+</pre><h3>Mutant 142</h3><pre>--- app/main.py
++++ app/main.py
+@@ -72,7 +72,7 @@
+     if result.is_err():
+         # a stage broke - fail closed rather than letting the prompt through
+         return ScreenResponse(
+-            verdict=Verdict.attack.name, phase="error", confidence=0.0
++            verdict=Verdict.attack.name, phase="error", confidence=1.0
+         )
+ 
+     success = result.unwrap()
+</pre><h3>Mutant 143</h3><pre>--- app/main.py
++++ app/main.py
+@@ -75,7 +75,7 @@
+             verdict=Verdict.attack.name, phase="error", confidence=0.0
+         )
+ 
+-    success = result.unwrap()
++    success = None
+     return ScreenResponse(
+         verdict=success.verdict.name,
+         phase=success.at_phase.name,
+</pre></body></html>

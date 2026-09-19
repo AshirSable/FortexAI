@@ -1,0 +1,526 @@
+<html><body><h1>app/pipeline/bert.py</h1>Killed 0 out of 47 mutants<h2>Survived</h2>Survived mutation testing. These mutants show holes in your test suite.<h3>Mutant 245</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -43,7 +43,7 @@
+ from app.type_store._error import InferenceError, ModelUnavailableError, PhaseError
+ from ml_factory import MODEL_DIRECTORY_RELEASED
+ 
+-MODEL_DIR = MODEL_DIRECTORY_RELEASED
++MODEL_DIR = None
+ FALLBACK_TOKENIZER_NAME = "google/bert_uncased_L-2_H-128_A-2"
+ 
+ # label 1 = attack, label 0 = benign, matching how the model was trained
+</pre><h3>Mutant 246</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -44,7 +44,7 @@
+ from ml_factory import MODEL_DIRECTORY_RELEASED
+ 
+ MODEL_DIR = MODEL_DIRECTORY_RELEASED
+-FALLBACK_TOKENIZER_NAME = "google/bert_uncased_L-2_H-128_A-2"
++FALLBACK_TOKENIZER_NAME = "XXgoogle/bert_uncased_L-2_H-128_A-2XX"
+ 
+ # label 1 = attack, label 0 = benign, matching how the model was trained
+ # (see ml_factory/datasets/test.py's f1_score(..., pos_label=1) for the attack class)
+</pre><h3>Mutant 247</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -44,7 +44,7 @@
+ from ml_factory import MODEL_DIRECTORY_RELEASED
+ 
+ MODEL_DIR = MODEL_DIRECTORY_RELEASED
+-FALLBACK_TOKENIZER_NAME = "google/bert_uncased_L-2_H-128_A-2"
++FALLBACK_TOKENIZER_NAME = None
+ 
+ # label 1 = attack, label 0 = benign, matching how the model was trained
+ # (see ml_factory/datasets/test.py's f1_score(..., pos_label=1) for the attack class)
+</pre><h3>Mutant 248</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -48,7 +48,7 @@
+ 
+ # label 1 = attack, label 0 = benign, matching how the model was trained
+ # (see ml_factory/datasets/test.py's f1_score(..., pos_label=1) for the attack class)
+-ATTACK_LABEL_INDEX = 1
++ATTACK_LABEL_INDEX = 2
+ 
+ # below this confidence in either direction, the stage has no opinion
+ DEFAULT_CONFIDENCE_THRESHOLD = 0.6
+</pre><h3>Mutant 249</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -48,7 +48,7 @@
+ 
+ # label 1 = attack, label 0 = benign, matching how the model was trained
+ # (see ml_factory/datasets/test.py's f1_score(..., pos_label=1) for the attack class)
+-ATTACK_LABEL_INDEX = 1
++ATTACK_LABEL_INDEX = None
+ 
+ # below this confidence in either direction, the stage has no opinion
+ DEFAULT_CONFIDENCE_THRESHOLD = 0.6
+</pre><h3>Mutant 250</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -51,7 +51,7 @@
+ ATTACK_LABEL_INDEX = 1
+ 
+ # below this confidence in either direction, the stage has no opinion
+-DEFAULT_CONFIDENCE_THRESHOLD = 0.6
++DEFAULT_CONFIDENCE_THRESHOLD = 1.6
+ 
+ 
+ class EnsembleBERTPipeline(PipelinePhase):
+</pre><h3>Mutant 251</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -51,7 +51,7 @@
+ ATTACK_LABEL_INDEX = 1
+ 
+ # below this confidence in either direction, the stage has no opinion
+-DEFAULT_CONFIDENCE_THRESHOLD = 0.6
++DEFAULT_CONFIDENCE_THRESHOLD = None
+ 
+ 
+ class EnsembleBERTPipeline(PipelinePhase):
+</pre><h3>Mutant 252</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -62,7 +62,7 @@
+     ):
+         super().__init__(phase=Phase.ensemble_bert)
+ 
+-        if not Path(model_dir).is_dir():
++        if  Path(model_dir).is_dir():
+             raise ModelUnavailableError(
+                 f"bert classifier folder not found at {model_dir}"
+             )
+</pre><h3>Mutant 253</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -64,7 +64,7 @@
+ 
+         if not Path(model_dir).is_dir():
+             raise ModelUnavailableError(
+-                f"bert classifier folder not found at {model_dir}"
++                f"XXbert classifier folder not found at {model_dir}XX"
+             )
+ 
+         self.confidence_threshold = confidence_threshold
+</pre><h3>Mutant 254</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -67,7 +67,7 @@
+                 f"bert classifier folder not found at {model_dir}"
+             )
+ 
+-        self.confidence_threshold = confidence_threshold
++        self.confidence_threshold = None
+         self.model = AutoModelForSequenceClassification.from_pretrained(model_dir)
+         self.model.eval()
+ 
+</pre><h3>Mutant 255</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -68,7 +68,7 @@
+             )
+ 
+         self.confidence_threshold = confidence_threshold
+-        self.model = AutoModelForSequenceClassification.from_pretrained(model_dir)
++        self.model = None
+         self.model.eval()
+ 
+         model_dir = Path(model_dir)
+</pre><h3>Mutant 256</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -71,7 +71,7 @@
+         self.model = AutoModelForSequenceClassification.from_pretrained(model_dir)
+         self.model.eval()
+ 
+-        model_dir = Path(model_dir)
++        model_dir = None
+         has_real_tokenizer_files = (model_dir / "tokenizer.json").exists() or (
+             model_dir / "vocab.txt"
+         ).exists()
+</pre><h3>Mutant 257</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -72,7 +72,7 @@
+         self.model.eval()
+ 
+         model_dir = Path(model_dir)
+-        has_real_tokenizer_files = (model_dir / "tokenizer.json").exists() or (
++        has_real_tokenizer_files = (model_dir * "tokenizer.json").exists() or (
+             model_dir / "vocab.txt"
+         ).exists()
+ 
+</pre><h3>Mutant 258</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -72,7 +72,7 @@
+         self.model.eval()
+ 
+         model_dir = Path(model_dir)
+-        has_real_tokenizer_files = (model_dir / "tokenizer.json").exists() or (
++        has_real_tokenizer_files = (model_dir / "XXtokenizer.jsonXX").exists() or (
+             model_dir / "vocab.txt"
+         ).exists()
+ 
+</pre><h3>Mutant 259</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -73,7 +73,7 @@
+ 
+         model_dir = Path(model_dir)
+         has_real_tokenizer_files = (model_dir / "tokenizer.json").exists() or (
+-            model_dir / "vocab.txt"
++            model_dir * "vocab.txt"
+         ).exists()
+ 
+         if has_real_tokenizer_files:
+</pre><h3>Mutant 260</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -73,7 +73,7 @@
+ 
+         model_dir = Path(model_dir)
+         has_real_tokenizer_files = (model_dir / "tokenizer.json").exists() or (
+-            model_dir / "vocab.txt"
++            model_dir / "XXvocab.txtXX"
+         ).exists()
+ 
+         if has_real_tokenizer_files:
+</pre><h3>Mutant 261</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -72,7 +72,7 @@
+         self.model.eval()
+ 
+         model_dir = Path(model_dir)
+-        has_real_tokenizer_files = (model_dir / "tokenizer.json").exists() or (
++        has_real_tokenizer_files = (model_dir / "tokenizer.json").exists() and (
+             model_dir / "vocab.txt"
+         ).exists()
+ 
+</pre><h3>Mutant 262</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -72,9 +72,7 @@
+         self.model.eval()
+ 
+         model_dir = Path(model_dir)
+-        has_real_tokenizer_files = (model_dir / "tokenizer.json").exists() or (
+-            model_dir / "vocab.txt"
+-        ).exists()
++        has_real_tokenizer_files = None
+ 
+         if has_real_tokenizer_files:
+             self.tokenizer = AutoTokenizer.from_pretrained(model_dir)
+</pre><h3>Mutant 263</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -77,7 +77,7 @@
+         ).exists()
+ 
+         if has_real_tokenizer_files:
+-            self.tokenizer = AutoTokenizer.from_pretrained(model_dir)
++            self.tokenizer = None
+         else:
+             self.tokenizer = AutoTokenizer.from_pretrained(FALLBACK_TOKENIZER_NAME)
+ 
+</pre><h3>Mutant 264</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -79,7 +79,7 @@
+         if has_real_tokenizer_files:
+             self.tokenizer = AutoTokenizer.from_pretrained(model_dir)
+         else:
+-            self.tokenizer = AutoTokenizer.from_pretrained(FALLBACK_TOKENIZER_NAME)
++            self.tokenizer = None
+ 
+     def attack_probability(self, text: str) -> float:
+         tokens = self.tokenizer(
+</pre><h3>Mutant 265</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -83,7 +83,7 @@
+ 
+     def attack_probability(self, text: str) -> float:
+         tokens = self.tokenizer(
+-            text, return_tensors="pt", truncation=True, max_length=128
++            text, return_tensors="XXptXX", truncation=True, max_length=128
+         )
+         with torch.no_grad():
+             logits = self.model(**tokens).logits
+</pre><h3>Mutant 266</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -83,7 +83,7 @@
+ 
+     def attack_probability(self, text: str) -> float:
+         tokens = self.tokenizer(
+-            text, return_tensors="pt", truncation=True, max_length=128
++            text, return_tensors="pt", truncation=False, max_length=128
+         )
+         with torch.no_grad():
+             logits = self.model(**tokens).logits
+</pre><h3>Mutant 267</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -83,7 +83,7 @@
+ 
+     def attack_probability(self, text: str) -> float:
+         tokens = self.tokenizer(
+-            text, return_tensors="pt", truncation=True, max_length=128
++            text, return_tensors="pt", truncation=True, max_length=129
+         )
+         with torch.no_grad():
+             logits = self.model(**tokens).logits
+</pre><h3>Mutant 268</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -82,9 +82,7 @@
+             self.tokenizer = AutoTokenizer.from_pretrained(FALLBACK_TOKENIZER_NAME)
+ 
+     def attack_probability(self, text: str) -> float:
+-        tokens = self.tokenizer(
+-            text, return_tensors="pt", truncation=True, max_length=128
+-        )
++        tokens = None
+         with torch.no_grad():
+             logits = self.model(**tokens).logits
+             probabilities = torch.softmax(logits, dim=-1)[0]
+</pre><h3>Mutant 269</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -86,7 +86,7 @@
+             text, return_tensors="pt", truncation=True, max_length=128
+         )
+         with torch.no_grad():
+-            logits = self.model(**tokens).logits
++            logits = None
+             probabilities = torch.softmax(logits, dim=-1)[0]
+         return float(probabilities[ATTACK_LABEL_INDEX])
+ 
+</pre><h3>Mutant 270</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -87,7 +87,7 @@
+         )
+         with torch.no_grad():
+             logits = self.model(**tokens).logits
+-            probabilities = torch.softmax(logits, dim=-1)[0]
++            probabilities = torch.softmax(logits, dim=+1)[0]
+         return float(probabilities[ATTACK_LABEL_INDEX])
+ 
+     def verdict(self, input: PhaseInput) -> Result[SuccessReturn, PhaseError]:
+</pre><h3>Mutant 271</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -87,7 +87,7 @@
+         )
+         with torch.no_grad():
+             logits = self.model(**tokens).logits
+-            probabilities = torch.softmax(logits, dim=-1)[0]
++            probabilities = torch.softmax(logits, dim=-2)[0]
+         return float(probabilities[ATTACK_LABEL_INDEX])
+ 
+     def verdict(self, input: PhaseInput) -> Result[SuccessReturn, PhaseError]:
+</pre><h3>Mutant 272</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -87,7 +87,7 @@
+         )
+         with torch.no_grad():
+             logits = self.model(**tokens).logits
+-            probabilities = torch.softmax(logits, dim=-1)[0]
++            probabilities = torch.softmax(logits, dim=-1)[1]
+         return float(probabilities[ATTACK_LABEL_INDEX])
+ 
+     def verdict(self, input: PhaseInput) -> Result[SuccessReturn, PhaseError]:
+</pre><h3>Mutant 273</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -87,7 +87,7 @@
+         )
+         with torch.no_grad():
+             logits = self.model(**tokens).logits
+-            probabilities = torch.softmax(logits, dim=-1)[0]
++            probabilities = None
+         return float(probabilities[ATTACK_LABEL_INDEX])
+ 
+     def verdict(self, input: PhaseInput) -> Result[SuccessReturn, PhaseError]:
+</pre><h3>Mutant 274</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -91,7 +91,7 @@
+         return float(probabilities[ATTACK_LABEL_INDEX])
+ 
+     def verdict(self, input: PhaseInput) -> Result[SuccessReturn, PhaseError]:
+-        text = input.require_text()
++        text = None
+ 
+         try:
+             attack_probability = self.attack_probability(text)
+</pre><h3>Mutant 275</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -94,7 +94,7 @@
+         text = input.require_text()
+ 
+         try:
+-            attack_probability = self.attack_probability(text)
++            attack_probability = None
+         except Exception as e:
+             return Err(InferenceError(f"bert classifier inference failed: {e}"))
+ 
+</pre><h3>Mutant 276</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -96,7 +96,7 @@
+         try:
+             attack_probability = self.attack_probability(text)
+         except Exception as e:
+-            return Err(InferenceError(f"bert classifier inference failed: {e}"))
++            return Err(InferenceError(f"XXbert classifier inference failed: {e}XX"))
+ 
+         benign_probability = 1.0 - attack_probability
+ 
+</pre><h3>Mutant 277</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -98,7 +98,7 @@
+         except Exception as e:
+             return Err(InferenceError(f"bert classifier inference failed: {e}"))
+ 
+-        benign_probability = 1.0 - attack_probability
++        benign_probability = 2.0 - attack_probability
+ 
+         if attack_probability >= self.confidence_threshold:
+             verdict = Verdict.attack
+</pre><h3>Mutant 278</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -98,7 +98,7 @@
+         except Exception as e:
+             return Err(InferenceError(f"bert classifier inference failed: {e}"))
+ 
+-        benign_probability = 1.0 - attack_probability
++        benign_probability = 1.0 + attack_probability
+ 
+         if attack_probability >= self.confidence_threshold:
+             verdict = Verdict.attack
+</pre><h3>Mutant 279</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -98,7 +98,7 @@
+         except Exception as e:
+             return Err(InferenceError(f"bert classifier inference failed: {e}"))
+ 
+-        benign_probability = 1.0 - attack_probability
++        benign_probability = None
+ 
+         if attack_probability >= self.confidence_threshold:
+             verdict = Verdict.attack
+</pre><h3>Mutant 280</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -100,7 +100,7 @@
+ 
+         benign_probability = 1.0 - attack_probability
+ 
+-        if attack_probability >= self.confidence_threshold:
++        if attack_probability > self.confidence_threshold:
+             verdict = Verdict.attack
+             confidence = attack_probability
+         elif benign_probability >= self.confidence_threshold:
+</pre><h3>Mutant 281</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -101,7 +101,7 @@
+         benign_probability = 1.0 - attack_probability
+ 
+         if attack_probability >= self.confidence_threshold:
+-            verdict = Verdict.attack
++            verdict = None
+             confidence = attack_probability
+         elif benign_probability >= self.confidence_threshold:
+             verdict = Verdict.benign
+</pre><h3>Mutant 282</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -102,7 +102,7 @@
+ 
+         if attack_probability >= self.confidence_threshold:
+             verdict = Verdict.attack
+-            confidence = attack_probability
++            confidence = None
+         elif benign_probability >= self.confidence_threshold:
+             verdict = Verdict.benign
+             confidence = benign_probability
+</pre><h3>Mutant 283</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -103,7 +103,7 @@
+         if attack_probability >= self.confidence_threshold:
+             verdict = Verdict.attack
+             confidence = attack_probability
+-        elif benign_probability >= self.confidence_threshold:
++        elif benign_probability > self.confidence_threshold:
+             verdict = Verdict.benign
+             confidence = benign_probability
+         else:
+</pre><h3>Mutant 284</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -104,7 +104,7 @@
+             verdict = Verdict.attack
+             confidence = attack_probability
+         elif benign_probability >= self.confidence_threshold:
+-            verdict = Verdict.benign
++            verdict = None
+             confidence = benign_probability
+         else:
+             verdict = Verdict.undetermined
+</pre><h3>Mutant 285</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -105,7 +105,7 @@
+             confidence = attack_probability
+         elif benign_probability >= self.confidence_threshold:
+             verdict = Verdict.benign
+-            confidence = benign_probability
++            confidence = None
+         else:
+             verdict = Verdict.undetermined
+             confidence = max(attack_probability, benign_probability)
+</pre><h3>Mutant 286</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -107,7 +107,7 @@
+             verdict = Verdict.benign
+             confidence = benign_probability
+         else:
+-            verdict = Verdict.undetermined
++            verdict = None
+             confidence = max(attack_probability, benign_probability)
+ 
+         return Ok(
+</pre><h3>Mutant 287</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -108,7 +108,7 @@
+             confidence = benign_probability
+         else:
+             verdict = Verdict.undetermined
+-            confidence = max(attack_probability, benign_probability)
++            confidence = None
+ 
+         return Ok(
+             SuccessReturn(verdict=verdict, at_phase=self.phase, confidence=confidence)
+</pre><h3>Mutant 288</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -117,7 +117,7 @@
+     def verdict_with_data(
+         self, input: PhaseInput
+     ) -> Result[SuccessForReview, PhaseError]:
+-        result = self.verdict(input)
++        result = None
+         if result.is_err():
+             return result
+ 
+</pre><h3>Mutant 289</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -121,7 +121,7 @@
+         if result.is_err():
+             return result
+ 
+-        text = input.require_text()
++        text = None
+         embedding = (
+             input.embedding
+             if input.embedding is not None
+</pre><h3>Mutant 290</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -124,7 +124,7 @@
+         text = input.require_text()
+         embedding = (
+             input.embedding
+-            if input.embedding is not None
++            if input.embedding is  None
+             else np.array(embed_text(text))
+         )
+ 
+</pre><h3>Mutant 291</h3><pre>--- app/pipeline/bert.py
++++ app/pipeline/bert.py
+@@ -122,11 +122,7 @@
+             return result
+ 
+         text = input.require_text()
+-        embedding = (
+-            input.embedding
+-            if input.embedding is not None
+-            else np.array(embed_text(text))
+-        )
++        embedding = None
+ 
+         return Ok(
+             SuccessForReview(
+</pre></body></html>

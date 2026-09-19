@@ -1,0 +1,199 @@
+<html><body><h1>app/pipeline/semantic_search.py</h1>Killed 0 out of 18 mutants<h2>Survived</h2>Survived mutation testing. These mutants show holes in your test suite.<h3>Mutant 292</h3><pre>--- app/pipeline/semantic_search.py
++++ app/pipeline/semantic_search.py
+@@ -22,7 +22,7 @@
+         super().__init__(phase=Phase.semantic_search)
+ 
+     def verdict(self, input: PhaseInput) -> Result[SuccessReturn, PhaseError]:
+-        text = input.require_text()
++        text = None
+ 
+         try:
+             search_result = search_prompt(text)
+</pre><h3>Mutant 293</h3><pre>--- app/pipeline/semantic_search.py
++++ app/pipeline/semantic_search.py
+@@ -25,7 +25,7 @@
+         text = input.require_text()
+ 
+         try:
+-            search_result = search_prompt(text)
++            search_result = None
+         except Exception as e:
+             return Err(InferenceError(f"semantic search failed: {e}"))
+ 
+</pre><h3>Mutant 294</h3><pre>--- app/pipeline/semantic_search.py
++++ app/pipeline/semantic_search.py
+@@ -27,7 +27,7 @@
+         try:
+             search_result = search_prompt(text)
+         except Exception as e:
+-            return Err(InferenceError(f"semantic search failed: {e}"))
++            return Err(InferenceError(f"XXsemantic search failed: {e}XX"))
+ 
+         match = search_result["match"]
+         similarity = float(search_result["similarity"])
+</pre><h3>Mutant 295</h3><pre>--- app/pipeline/semantic_search.py
++++ app/pipeline/semantic_search.py
+@@ -29,7 +29,7 @@
+         except Exception as e:
+             return Err(InferenceError(f"semantic search failed: {e}"))
+ 
+-        match = search_result["match"]
++        match = search_result["XXmatchXX"]
+         similarity = float(search_result["similarity"])
+ 
+         if match == "attack":
+</pre><h3>Mutant 296</h3><pre>--- app/pipeline/semantic_search.py
++++ app/pipeline/semantic_search.py
+@@ -29,7 +29,7 @@
+         except Exception as e:
+             return Err(InferenceError(f"semantic search failed: {e}"))
+ 
+-        match = search_result["match"]
++        match = None
+         similarity = float(search_result["similarity"])
+ 
+         if match == "attack":
+</pre><h3>Mutant 297</h3><pre>--- app/pipeline/semantic_search.py
++++ app/pipeline/semantic_search.py
+@@ -30,7 +30,7 @@
+             return Err(InferenceError(f"semantic search failed: {e}"))
+ 
+         match = search_result["match"]
+-        similarity = float(search_result["similarity"])
++        similarity = float(search_result["XXsimilarityXX"])
+ 
+         if match == "attack":
+             verdict = Verdict.attack
+</pre><h3>Mutant 298</h3><pre>--- app/pipeline/semantic_search.py
++++ app/pipeline/semantic_search.py
+@@ -30,7 +30,7 @@
+             return Err(InferenceError(f"semantic search failed: {e}"))
+ 
+         match = search_result["match"]
+-        similarity = float(search_result["similarity"])
++        similarity = None
+ 
+         if match == "attack":
+             verdict = Verdict.attack
+</pre><h3>Mutant 299</h3><pre>--- app/pipeline/semantic_search.py
++++ app/pipeline/semantic_search.py
+@@ -32,7 +32,7 @@
+         match = search_result["match"]
+         similarity = float(search_result["similarity"])
+ 
+-        if match == "attack":
++        if match != "attack":
+             verdict = Verdict.attack
+         elif match == "benign":
+             verdict = Verdict.benign
+</pre><h3>Mutant 300</h3><pre>--- app/pipeline/semantic_search.py
++++ app/pipeline/semantic_search.py
+@@ -32,7 +32,7 @@
+         match = search_result["match"]
+         similarity = float(search_result["similarity"])
+ 
+-        if match == "attack":
++        if match == "XXattackXX":
+             verdict = Verdict.attack
+         elif match == "benign":
+             verdict = Verdict.benign
+</pre><h3>Mutant 301</h3><pre>--- app/pipeline/semantic_search.py
++++ app/pipeline/semantic_search.py
+@@ -33,7 +33,7 @@
+         similarity = float(search_result["similarity"])
+ 
+         if match == "attack":
+-            verdict = Verdict.attack
++            verdict = None
+         elif match == "benign":
+             verdict = Verdict.benign
+         else:
+</pre><h3>Mutant 302</h3><pre>--- app/pipeline/semantic_search.py
++++ app/pipeline/semantic_search.py
+@@ -34,7 +34,7 @@
+ 
+         if match == "attack":
+             verdict = Verdict.attack
+-        elif match == "benign":
++        elif match != "benign":
+             verdict = Verdict.benign
+         else:
+             # "not_found" - nothing close enough in either index, so this
+</pre><h3>Mutant 303</h3><pre>--- app/pipeline/semantic_search.py
++++ app/pipeline/semantic_search.py
+@@ -34,7 +34,7 @@
+ 
+         if match == "attack":
+             verdict = Verdict.attack
+-        elif match == "benign":
++        elif match == "XXbenignXX":
+             verdict = Verdict.benign
+         else:
+             # "not_found" - nothing close enough in either index, so this
+</pre><h3>Mutant 304</h3><pre>--- app/pipeline/semantic_search.py
++++ app/pipeline/semantic_search.py
+@@ -35,7 +35,7 @@
+         if match == "attack":
+             verdict = Verdict.attack
+         elif match == "benign":
+-            verdict = Verdict.benign
++            verdict = None
+         else:
+             # "not_found" - nothing close enough in either index, so this
+             # stage has no opinion. Let the next stage (autoencoder) decide.
+</pre><h3>Mutant 305</h3><pre>--- app/pipeline/semantic_search.py
++++ app/pipeline/semantic_search.py
+@@ -39,7 +39,7 @@
+         else:
+             # "not_found" - nothing close enough in either index, so this
+             # stage has no opinion. Let the next stage (autoencoder) decide.
+-            verdict = Verdict.undetermined
++            verdict = None
+ 
+         return Ok(SuccessReturn(verdict=verdict, at_phase=self.phase, confidence=similarity))
+ 
+</pre><h3>Mutant 306</h3><pre>--- app/pipeline/semantic_search.py
++++ app/pipeline/semantic_search.py
+@@ -44,7 +44,7 @@
+         return Ok(SuccessReturn(verdict=verdict, at_phase=self.phase, confidence=similarity))
+ 
+     def verdict_with_data(self, input: PhaseInput) -> Result[SuccessForReview, PhaseError]:
+-        result = self.verdict(input)
++        result = None
+         if result.is_err():
+             return result
+ 
+</pre><h3>Mutant 307</h3><pre>--- app/pipeline/semantic_search.py
++++ app/pipeline/semantic_search.py
+@@ -48,7 +48,7 @@
+         if result.is_err():
+             return result
+ 
+-        text = input.require_text()
++        text = None
+         embedding = input.embedding if input.embedding is not None else np.array(embed_text(text))
+ 
+         return Ok(SuccessForReview(success_return=result.unwrap(), embedding=embedding, text=text))
+</pre><h3>Mutant 308</h3><pre>--- app/pipeline/semantic_search.py
++++ app/pipeline/semantic_search.py
+@@ -49,7 +49,7 @@
+             return result
+ 
+         text = input.require_text()
+-        embedding = input.embedding if input.embedding is not None else np.array(embed_text(text))
++        embedding = input.embedding if input.embedding is  None else np.array(embed_text(text))
+ 
+         return Ok(SuccessForReview(success_return=result.unwrap(), embedding=embedding, text=text))
+ 
+</pre><h3>Mutant 309</h3><pre>--- app/pipeline/semantic_search.py
++++ app/pipeline/semantic_search.py
+@@ -49,7 +49,7 @@
+             return result
+ 
+         text = input.require_text()
+-        embedding = input.embedding if input.embedding is not None else np.array(embed_text(text))
++        embedding = None
+ 
+         return Ok(SuccessForReview(success_return=result.unwrap(), embedding=embedding, text=text))
+ 
+</pre></body></html>

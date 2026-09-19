@@ -1,0 +1,71 @@
+<html><body><h1>app/pipeline/llm_judge.py</h1>Killed 0 out of 6 mutants<h2>Survived</h2>Survived mutation testing. These mutants show holes in your test suite.<h3>Mutant 239</h3><pre>--- app/pipeline/llm_judge.py
++++ app/pipeline/llm_judge.py
+@@ -29,7 +29,7 @@
+ from app.type_store._error import PhaseError
+ 
+ # low on purpose: this isn't a real judgement, just a safe default
+-FAIL_CLOSED_CONFIDENCE = 0.1
++FAIL_CLOSED_CONFIDENCE = 1.1
+ 
+ 
+ class LLM_JudgePipeline(PipelinePhase):
+</pre><h3>Mutant 240</h3><pre>--- app/pipeline/llm_judge.py
++++ app/pipeline/llm_judge.py
+@@ -29,7 +29,7 @@
+ from app.type_store._error import PhaseError
+ 
+ # low on purpose: this isn't a real judgement, just a safe default
+-FAIL_CLOSED_CONFIDENCE = 0.1
++FAIL_CLOSED_CONFIDENCE = None
+ 
+ 
+ class LLM_JudgePipeline(PipelinePhase):
+</pre><h3>Mutant 241</h3><pre>--- app/pipeline/llm_judge.py
++++ app/pipeline/llm_judge.py
+@@ -51,7 +51,7 @@
+     def verdict_with_data(
+         self, input: PhaseInput
+     ) -> Result[SuccessForReview, PhaseError]:
+-        result = self.verdict(input)
++        result = None
+         if result.is_err():
+             return result
+ 
+</pre><h3>Mutant 242</h3><pre>--- app/pipeline/llm_judge.py
++++ app/pipeline/llm_judge.py
+@@ -55,7 +55,7 @@
+         if result.is_err():
+             return result
+ 
+-        text = input.require_text()
++        text = None
+         embedding = (
+             input.embedding
+             if input.embedding is not None
+</pre><h3>Mutant 243</h3><pre>--- app/pipeline/llm_judge.py
++++ app/pipeline/llm_judge.py
+@@ -58,7 +58,7 @@
+         text = input.require_text()
+         embedding = (
+             input.embedding
+-            if input.embedding is not None
++            if input.embedding is  None
+             else np.array(embed_text(text))
+         )
+ 
+</pre><h3>Mutant 244</h3><pre>--- app/pipeline/llm_judge.py
++++ app/pipeline/llm_judge.py
+@@ -56,11 +56,7 @@
+             return result
+ 
+         text = input.require_text()
+-        embedding = (
+-            input.embedding
+-            if input.embedding is not None
+-            else np.array(embed_text(text))
+-        )
++        embedding = None
+ 
+         return Ok(
+             SuccessForReview(
+</pre></body></html>

@@ -1,0 +1,243 @@
+<html><body><h1>auth/security.py</h1>Killed 0 out of 22 mutants<h2>Survived</h2>Survived mutation testing. These mutants show holes in your test suite.<h3>Mutant 30</h3><pre>--- auth/security.py
++++ auth/security.py
+@@ -4,7 +4,7 @@
+ import bcrypt
+ import jwt
+ 
+-SECRET_KEY = os.environ.get("AUTH_SECRET_KEY", "dev-only-insecure-secret-change-me")
++SECRET_KEY = os.environ.get("XXAUTH_SECRET_KEYXX", "dev-only-insecure-secret-change-me")
+ ALGORITHM = "HS256"
+ ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
+ 
+</pre><h3>Mutant 31</h3><pre>--- auth/security.py
++++ auth/security.py
+@@ -4,7 +4,7 @@
+ import bcrypt
+ import jwt
+ 
+-SECRET_KEY = os.environ.get("AUTH_SECRET_KEY", "dev-only-insecure-secret-change-me")
++SECRET_KEY = os.environ.get("AUTH_SECRET_KEY", "XXdev-only-insecure-secret-change-meXX")
+ ALGORITHM = "HS256"
+ ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
+ 
+</pre><h3>Mutant 32</h3><pre>--- auth/security.py
++++ auth/security.py
+@@ -4,7 +4,7 @@
+ import bcrypt
+ import jwt
+ 
+-SECRET_KEY = os.environ.get("AUTH_SECRET_KEY", "dev-only-insecure-secret-change-me")
++SECRET_KEY = None
+ ALGORITHM = "HS256"
+ ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
+ 
+</pre><h3>Mutant 33</h3><pre>--- auth/security.py
++++ auth/security.py
+@@ -5,7 +5,7 @@
+ import jwt
+ 
+ SECRET_KEY = os.environ.get("AUTH_SECRET_KEY", "dev-only-insecure-secret-change-me")
+-ALGORITHM = "HS256"
++ALGORITHM = "XXHS256XX"
+ ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
+ 
+ 
+</pre><h3>Mutant 34</h3><pre>--- auth/security.py
++++ auth/security.py
+@@ -5,7 +5,7 @@
+ import jwt
+ 
+ SECRET_KEY = os.environ.get("AUTH_SECRET_KEY", "dev-only-insecure-secret-change-me")
+-ALGORITHM = "HS256"
++ALGORITHM = None
+ ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
+ 
+ 
+</pre><h3>Mutant 35</h3><pre>--- auth/security.py
++++ auth/security.py
+@@ -6,7 +6,7 @@
+ 
+ SECRET_KEY = os.environ.get("AUTH_SECRET_KEY", "dev-only-insecure-secret-change-me")
+ ALGORITHM = "HS256"
+-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
++ACCESS_TOKEN_EXPIRE_MINUTES = 61 * 24 * 7  # 7 days
+ 
+ 
+ def hash_password(password: str) -> str:
+</pre><h3>Mutant 36</h3><pre>--- auth/security.py
++++ auth/security.py
+@@ -6,7 +6,7 @@
+ 
+ SECRET_KEY = os.environ.get("AUTH_SECRET_KEY", "dev-only-insecure-secret-change-me")
+ ALGORITHM = "HS256"
+-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
++ACCESS_TOKEN_EXPIRE_MINUTES = 60 / 24 * 7  # 7 days
+ 
+ 
+ def hash_password(password: str) -> str:
+</pre><h3>Mutant 37</h3><pre>--- auth/security.py
++++ auth/security.py
+@@ -6,7 +6,7 @@
+ 
+ SECRET_KEY = os.environ.get("AUTH_SECRET_KEY", "dev-only-insecure-secret-change-me")
+ ALGORITHM = "HS256"
+-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
++ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 25 * 7  # 7 days
+ 
+ 
+ def hash_password(password: str) -> str:
+</pre><h3>Mutant 38</h3><pre>--- auth/security.py
++++ auth/security.py
+@@ -6,7 +6,7 @@
+ 
+ SECRET_KEY = os.environ.get("AUTH_SECRET_KEY", "dev-only-insecure-secret-change-me")
+ ALGORITHM = "HS256"
+-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
++ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 / 7  # 7 days
+ 
+ 
+ def hash_password(password: str) -> str:
+</pre><h3>Mutant 39</h3><pre>--- auth/security.py
++++ auth/security.py
+@@ -6,7 +6,7 @@
+ 
+ SECRET_KEY = os.environ.get("AUTH_SECRET_KEY", "dev-only-insecure-secret-change-me")
+ ALGORITHM = "HS256"
+-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
++ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 8  # 7 days
+ 
+ 
+ def hash_password(password: str) -> str:
+</pre><h3>Mutant 40</h3><pre>--- auth/security.py
++++ auth/security.py
+@@ -6,7 +6,7 @@
+ 
+ SECRET_KEY = os.environ.get("AUTH_SECRET_KEY", "dev-only-insecure-secret-change-me")
+ ALGORITHM = "HS256"
+-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
++ACCESS_TOKEN_EXPIRE_MINUTES = None  # 7 days
+ 
+ 
+ def hash_password(password: str) -> str:
+</pre><h3>Mutant 41</h3><pre>--- auth/security.py
++++ auth/security.py
+@@ -10,7 +10,7 @@
+ 
+ 
+ def hash_password(password: str) -> str:
+-    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
++    return bcrypt.hashpw(password.encode("XXutf-8XX"), bcrypt.gensalt()).decode("utf-8")
+ 
+ 
+ def verify_password(password: str, password_hash: str) -> bool:
+</pre><h3>Mutant 42</h3><pre>--- auth/security.py
++++ auth/security.py
+@@ -10,7 +10,7 @@
+ 
+ 
+ def hash_password(password: str) -> str:
+-    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
++    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("XXutf-8XX")
+ 
+ 
+ def verify_password(password: str, password_hash: str) -> bool:
+</pre><h3>Mutant 43</h3><pre>--- auth/security.py
++++ auth/security.py
+@@ -14,7 +14,7 @@
+ 
+ 
+ def verify_password(password: str, password_hash: str) -> bool:
+-    return bcrypt.checkpw(password.encode("utf-8"), password_hash.encode("utf-8"))
++    return bcrypt.checkpw(password.encode("XXutf-8XX"), password_hash.encode("utf-8"))
+ 
+ 
+ def create_access_token(user_id: int) -> str:
+</pre><h3>Mutant 44</h3><pre>--- auth/security.py
++++ auth/security.py
+@@ -14,7 +14,7 @@
+ 
+ 
+ def verify_password(password: str, password_hash: str) -> bool:
+-    return bcrypt.checkpw(password.encode("utf-8"), password_hash.encode("utf-8"))
++    return bcrypt.checkpw(password.encode("utf-8"), password_hash.encode("XXutf-8XX"))
+ 
+ 
+ def create_access_token(user_id: int) -> str:
+</pre><h3>Mutant 45</h3><pre>--- auth/security.py
++++ auth/security.py
+@@ -18,7 +18,7 @@
+ 
+ 
+ def create_access_token(user_id: int) -> str:
+-    expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
++    expire = datetime.now(timezone.utc) - timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+     payload = {"sub": str(user_id), "exp": expire}
+     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+ 
+</pre><h3>Mutant 46</h3><pre>--- auth/security.py
++++ auth/security.py
+@@ -18,7 +18,7 @@
+ 
+ 
+ def create_access_token(user_id: int) -> str:
+-    expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
++    expire = None
+     payload = {"sub": str(user_id), "exp": expire}
+     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+ 
+</pre><h3>Mutant 47</h3><pre>--- auth/security.py
++++ auth/security.py
+@@ -19,7 +19,7 @@
+ 
+ def create_access_token(user_id: int) -> str:
+     expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+-    payload = {"sub": str(user_id), "exp": expire}
++    payload = {"XXsubXX": str(user_id), "exp": expire}
+     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+ 
+ 
+</pre><h3>Mutant 48</h3><pre>--- auth/security.py
++++ auth/security.py
+@@ -19,7 +19,7 @@
+ 
+ def create_access_token(user_id: int) -> str:
+     expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+-    payload = {"sub": str(user_id), "exp": expire}
++    payload = {"sub": str(user_id), "XXexpXX": expire}
+     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+ 
+ 
+</pre><h3>Mutant 49</h3><pre>--- auth/security.py
++++ auth/security.py
+@@ -19,7 +19,7 @@
+ 
+ def create_access_token(user_id: int) -> str:
+     expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+-    payload = {"sub": str(user_id), "exp": expire}
++    payload = None
+     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+ 
+ 
+</pre><h3>Mutant 50</h3><pre>--- auth/security.py
++++ auth/security.py
+@@ -25,7 +25,7 @@
+ 
+ def decode_access_token(token: str) -> int | None:
+     try:
+-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
++        payload = None
+         return int(payload["sub"])
+     except (jwt.PyJWTError, KeyError, ValueError):
+         return None
+</pre><h3>Mutant 51</h3><pre>--- auth/security.py
++++ auth/security.py
+@@ -26,7 +26,7 @@
+ def decode_access_token(token: str) -> int | None:
+     try:
+         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+-        return int(payload["sub"])
++        return int(payload["XXsubXX"])
+     except (jwt.PyJWTError, KeyError, ValueError):
+         return None
+ 
+</pre></body></html>
