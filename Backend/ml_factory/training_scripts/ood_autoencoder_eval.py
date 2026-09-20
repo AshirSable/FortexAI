@@ -1,12 +1,10 @@
 from pathlib import Path
 
-from torch.utils.data import DataLoader, Subset
 import polars as pl
 import torch
-from ml_factory.datasets.sampler import SplitSampler
+from torch.utils.data import DataLoader, Subset
+
 import ml_factory.datasets.test as ood_data
-from ml_factory.utils import merge_parts, merge_parts_simple
-from ml_factory.utils.scaler import StandardScaler
 from ml_factory import (
     DATA_PROCESSED_DIR,
     DATA_RAW_DIR,
@@ -14,9 +12,18 @@ from ml_factory import (
     TRAINING_LOGS_DIR,
 )
 from ml_factory.datasets import PromptFeatureDataset
+from ml_factory.datasets.sampler import SplitSampler
 from ml_factory.models import Args
-from ml_factory.models.autoencoder import BaseNormalAutoEncoder, NormalityAE
+from ml_factory.models.autoencoder import (
+    BaseNormalAutoEncoder,
+    NormalityAE,
+    ModelResult,
+)
+from ml_factory.utils import merge_parts, merge_parts_simple
+from ml_factory.utils.scaler import StandardScaler
 from ml_factory.utils.structural_extractor import StructuralExtractor
+
+import numpy as np
 
 
 def evaluate_model_with_all_thresholds(
@@ -66,6 +73,67 @@ def evaluate_model_with_all_thresholds(
     full_table = pl.concat(all_results)
     full_table.write_csv(out_path)
     return full_table
+
+
+def sweep_low_threshold_by_std(
+    model: torch.nn.Module,
+    loader: DataLoader,
+    device: str = "cuda",
+    std_multipliers: np.ndarray | None = None,
+) -> pl.DataFrame:
+    """
+    Runs the model once over `loader`, then sweeps candidate low thresholds
+    as score_mean_benign + k * score_std_benign for k in std_multipliers,
+    reporting how many attacks would be bypassed (scored below threshold)
+    and how many benign samples would be correctly fast-pathed at each.
+    """
+    if std_multipliers is None:
+        std_multipliers = np.arange(0.0, 1.05, 0.1)
+
+    model.eval()
+    all_scores, all_labels = [], []
+
+    with torch.no_grad():
+        for X, y in loader:
+            X = X.to(device)
+            result = model(X)
+            if isinstance(result, ModelResult):
+                scores = ((result.recon - X) ** 2).mean(dim=1)
+            else:
+                scores = ((result[0] - X) ** 2).mean(dim=1)
+            all_scores.append(scores.cpu())
+            all_labels.append(y.cpu())
+
+    scores = torch.cat(all_scores).numpy()
+    labels = torch.cat(all_labels).numpy()
+
+    attack_scores = scores[labels == 1]
+    benign_scores = scores[labels == 0]
+
+    score_mean_benign = float(benign_scores.mean())
+    score_std_benign = float(benign_scores.std())
+
+    rows = []
+    for k in std_multipliers:
+        candidate_low = score_mean_benign + k * score_std_benign
+        attacks_bypassed = int((attack_scores < candidate_low).sum())
+        benign_fast_pathed = int((benign_scores < candidate_low).sum())
+
+        rows.append(
+            {
+                "std_multiplier": round(float(k), 2),
+                "candidate_low_threshold": candidate_low,
+                "attacks_bypassed": attacks_bypassed,
+                "attacks_bypassed_pct": attacks_bypassed / len(attack_scores),
+                "benign_fast_pathed": benign_fast_pathed,
+                "benign_fast_pathed_pct": benign_fast_pathed / len(benign_scores),
+            }
+        )
+
+    print(
+        f"score_mean_benign={score_mean_benign:.6f}, score_std_benign={score_std_benign:.6f}"
+    )
+    return pl.DataFrame(rows)
 
 
 if __name__ == "__main__":
