@@ -62,13 +62,11 @@ AE_INPUT_DIM = EMBEDDING_DIM + 9
 AE_ARGS = Args(ae_bottleneck=100, n_experts=8, expert_k=4)
 
 
-#  One of calibrated values, FIX: only one threshold value
-LOW_ERROR_THRESHOLD = (
-    1.55361437797546  # reconstruction error at or below this -> benign #
-)
-HIGH_ERROR_THRESHOLD = (
-    1.55361437797546  # reconstruction error at or above this -> attack #
-)
+#  One of calibrated values,
+
+# Calibrated Values
+LOW_ERROR_THRESHOLD = 1.0069705247879028  # reconstruction error at or below this -> benign #  # Mean Reconstruction loss for Benign data in OOD Validation Dataset
+HIGH_ERROR_THRESHOLD = 2.154469  # reconstruction error at or above this -> attack #  # Threshold with the lowes TPR ~ 0.502 (Detecting Attack Correctly) and Highest TNR ~ 0.985 (Detecting Benign)
 # anything in between -> undetermined, pass to the next stage
 
 # TODO: Need to calibrate the low error and high error threshold for this model

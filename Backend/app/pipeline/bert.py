@@ -27,6 +27,7 @@ from pathlib import Path
 import numpy as np
 import torch
 from ml_factory import MODEL_DIRECTORY_RELEASED
+from ml_factory.models.ensemble_bert import EnsembleBERT
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 from app.pipeline import PipelinePhase
@@ -43,8 +44,9 @@ from app.type_store import (
 )
 from app.type_store._error import InferenceError, ModelUnavailableError, PhaseError
 
-MODEL_DIR = MODEL_DIRECTORY_RELEASED
+MODEL_DIR = MODEL_DIRECTORY_RELEASED / "ensemble_classifier_mini"
 FALLBACK_TOKENIZER_NAME = "google/bert_uncased_L-4_H-256_A-4"
+FALLBACK_MODEL_NAME = "google/bert_uncased_L-4_H-256_A-4"
 
 # label 1 = attack, label 0 = benign, matching how the model was trained
 # (see ml_factory/datasets/test.py's f1_score(..., pos_label=1) for the attack class)
@@ -52,6 +54,8 @@ ATTACK_LABEL_INDEX = 1
 
 # below this confidence in either direction, the stage has no opinion
 DEFAULT_CONFIDENCE_THRESHOLD = 0.25
+
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 class EnsembleBERTPipeline(PipelinePhase):
@@ -68,7 +72,9 @@ class EnsembleBERTPipeline(PipelinePhase):
             )
 
         self.confidence_threshold = confidence_threshold
-        self.model = AutoModelForSequenceClassification.from_pretrained(model_dir)
+        self.model = EnsembleBERT._load_from_file(
+            MODEL_DIR, FALLBACK_MODEL_NAME, device=DEVICE
+        )
         self.model.eval()
 
         model_dir = Path(model_dir)
@@ -84,10 +90,11 @@ class EnsembleBERTPipeline(PipelinePhase):
     def attack_probability(self, text: str) -> float:
         tokens = self.tokenizer(
             text, return_tensors="pt", truncation=True, max_length=128
-        )
+        ).to(DEVICE)
         with torch.no_grad():
-            logits = self.model(**tokens).logits
-            probabilities = torch.softmax(logits, dim=-1)[0]
+            probabilities = self.model.predict_proba(
+                input_ids=tokens["input_ids"], attention_mask=tokens["attention_mask"]
+            )[0]
         return float(probabilities[ATTACK_LABEL_INDEX])
 
     def verdict(self, input: PhaseInput) -> Result[SuccessReturn, PhaseError]:
