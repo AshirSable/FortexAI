@@ -60,6 +60,7 @@ class Pipeline:
             result = phase.verdict(current_input)
 
             if result.is_err():
+                print(result)
                 # a stage broke - stop here and hand the error back, instead
                 # of guessing what the broken stage would have said.
                 return result
@@ -75,12 +76,27 @@ class Pipeline:
 
             # TODO: If the models ahead of the Auto-encoder classify a text as normal, it must be saved in the allowed prompts
             # we need to do an analysis comparing latency vs storage for deciding in which phase we should save in the allowed prompts database
-            if success.verdict != Verdict.undetermined:
-                # this stage made a call - the cascade stops here.
-                # BUG: The cascade stopping criteria as not as discussed
-                # It should stop when malicious in stage "semantic search", "bert", "llm judge"
-                # it should stop when benign in auto encoder
+            if (
+                phase.phase in (Phase.autoencoder, Phase.ensemble_bert)
+                and success.verdict == Verdict.benign
+            ):
                 return result
+
+            if (
+                phase.phase
+                in (Phase.ensemble_bert, Phase.llm_judge, Phase.semantic_search)
+                and success.verdict == Verdict.attack
+            ):
+                return result
+
+            # if success.verdict != Verdict.undetermined:
+            #     # this stage made a call - the cascade stops here.
+            #     # BUG: The cascade stopping criteria as not as discussed
+            #     # It should stop when malicious in stage "semantic search", "bert", "llm judge"
+            #     # it should stop when benign in auto encoder
+            #     return result
+
+            print(result)
 
             # this stage had no opinion - remember its result (now carrying
             # its own cumulative latency) and move on to the next stage,
