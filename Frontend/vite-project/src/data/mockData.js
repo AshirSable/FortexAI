@@ -98,6 +98,9 @@ function buildPath(values, w, h, max, pad = 4) {
 export function fmtNum(n) {
   return n.toLocaleString('en-US');
 }
+export function now() {
+  return Date.now();
+}
 export function fmtTime(ts) {
   const d = new Date(ts);
   return d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });

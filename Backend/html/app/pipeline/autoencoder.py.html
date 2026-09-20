@@ -1,0 +1,766 @@
+<html><body><h1>app/pipeline/autoencoder.py</h1>Killed 0 out of 69 mutants<h2>Survived</h2>Survived mutation testing. These mutants show holes in your test suite.<h3>Mutant 163</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -44,7 +44,7 @@
+ from app.type_store._error import InferenceError, ModelUnavailableError, PhaseError
+ 
+ # the only autoencoder checkpoint currently in the repo (added 2026-09-17).
+-MODEL_PATH = MODEL_DIRECTORY_RELEASED / "NormalityAE_1788973962.4063935.pt"
++MODEL_PATH = MODEL_DIRECTORY_RELEASED * "NormalityAE_1788973962.4063935.pt"
+ 
+ # matches the checkpoint's tensor shapes exactly (see summary): a 768-dim
+ # embedding plus 9 structural features, 8 experts, top-2 bottleneck of 64.
+</pre><h3>Mutant 164</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -44,7 +44,7 @@
+ from app.type_store._error import InferenceError, ModelUnavailableError, PhaseError
+ 
+ # the only autoencoder checkpoint currently in the repo (added 2026-09-17).
+-MODEL_PATH = MODEL_DIRECTORY_RELEASED / "NormalityAE_1788973962.4063935.pt"
++MODEL_PATH = MODEL_DIRECTORY_RELEASED / "XXNormalityAE_1788973962.4063935.ptXX"
+ 
+ # matches the checkpoint's tensor shapes exactly (see summary): a 768-dim
+ # embedding plus 9 structural features, 8 experts, top-2 bottleneck of 64.
+</pre><h3>Mutant 165</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -44,7 +44,7 @@
+ from app.type_store._error import InferenceError, ModelUnavailableError, PhaseError
+ 
+ # the only autoencoder checkpoint currently in the repo (added 2026-09-17).
+-MODEL_PATH = MODEL_DIRECTORY_RELEASED / "NormalityAE_1788973962.4063935.pt"
++MODEL_PATH = None
+ 
+ # matches the checkpoint's tensor shapes exactly (see summary): a 768-dim
+ # embedding plus 9 structural features, 8 experts, top-2 bottleneck of 64.
+</pre><h3>Mutant 166</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -50,7 +50,7 @@
+ # embedding plus 9 structural features, 8 experts, top-2 bottleneck of 64.
+ # expert_k=2 is the Args default and can't be verified from the checkpoint's
+ # weight shapes alone (it only affects the forward pass, not layer sizes).
+-EMBEDDING_DIM = 768
++EMBEDDING_DIM = 769
+ AE_INPUT_DIM = EMBEDDING_DIM + 9
+ AE_ARGS = Args(ae_bottleneck=64, n_experts=8, expert_k=2)
+ 
+</pre><h3>Mutant 167</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -50,7 +50,7 @@
+ # embedding plus 9 structural features, 8 experts, top-2 bottleneck of 64.
+ # expert_k=2 is the Args default and can't be verified from the checkpoint's
+ # weight shapes alone (it only affects the forward pass, not layer sizes).
+-EMBEDDING_DIM = 768
++EMBEDDING_DIM = None
+ AE_INPUT_DIM = EMBEDDING_DIM + 9
+ AE_ARGS = Args(ae_bottleneck=64, n_experts=8, expert_k=2)
+ 
+</pre><h3>Mutant 168</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -51,7 +51,7 @@
+ # expert_k=2 is the Args default and can't be verified from the checkpoint's
+ # weight shapes alone (it only affects the forward pass, not layer sizes).
+ EMBEDDING_DIM = 768
+-AE_INPUT_DIM = EMBEDDING_DIM + 9
++AE_INPUT_DIM = EMBEDDING_DIM - 9
+ AE_ARGS = Args(ae_bottleneck=64, n_experts=8, expert_k=2)
+ 
+ # GUESSED, not calibrated - see module docstring.
+</pre><h3>Mutant 169</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -51,7 +51,7 @@
+ # expert_k=2 is the Args default and can't be verified from the checkpoint's
+ # weight shapes alone (it only affects the forward pass, not layer sizes).
+ EMBEDDING_DIM = 768
+-AE_INPUT_DIM = EMBEDDING_DIM + 9
++AE_INPUT_DIM = EMBEDDING_DIM + 10
+ AE_ARGS = Args(ae_bottleneck=64, n_experts=8, expert_k=2)
+ 
+ # GUESSED, not calibrated - see module docstring.
+</pre><h3>Mutant 170</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -51,7 +51,7 @@
+ # expert_k=2 is the Args default and can't be verified from the checkpoint's
+ # weight shapes alone (it only affects the forward pass, not layer sizes).
+ EMBEDDING_DIM = 768
+-AE_INPUT_DIM = EMBEDDING_DIM + 9
++AE_INPUT_DIM = None
+ AE_ARGS = Args(ae_bottleneck=64, n_experts=8, expert_k=2)
+ 
+ # GUESSED, not calibrated - see module docstring.
+</pre><h3>Mutant 171</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -52,7 +52,7 @@
+ # weight shapes alone (it only affects the forward pass, not layer sizes).
+ EMBEDDING_DIM = 768
+ AE_INPUT_DIM = EMBEDDING_DIM + 9
+-AE_ARGS = Args(ae_bottleneck=64, n_experts=8, expert_k=2)
++AE_ARGS = Args(ae_bottleneck=65, n_experts=8, expert_k=2)
+ 
+ # GUESSED, not calibrated - see module docstring.
+ LOW_ERROR_THRESHOLD = 0.05  # reconstruction error at or below this -> benign # BUG: Needs to be calibrated
+</pre><h3>Mutant 172</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -52,7 +52,7 @@
+ # weight shapes alone (it only affects the forward pass, not layer sizes).
+ EMBEDDING_DIM = 768
+ AE_INPUT_DIM = EMBEDDING_DIM + 9
+-AE_ARGS = Args(ae_bottleneck=64, n_experts=8, expert_k=2)
++AE_ARGS = Args(ae_bottleneck=64, n_experts=9, expert_k=2)
+ 
+ # GUESSED, not calibrated - see module docstring.
+ LOW_ERROR_THRESHOLD = 0.05  # reconstruction error at or below this -> benign # BUG: Needs to be calibrated
+</pre><h3>Mutant 173</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -52,7 +52,7 @@
+ # weight shapes alone (it only affects the forward pass, not layer sizes).
+ EMBEDDING_DIM = 768
+ AE_INPUT_DIM = EMBEDDING_DIM + 9
+-AE_ARGS = Args(ae_bottleneck=64, n_experts=8, expert_k=2)
++AE_ARGS = Args(ae_bottleneck=64, n_experts=8, expert_k=3)
+ 
+ # GUESSED, not calibrated - see module docstring.
+ LOW_ERROR_THRESHOLD = 0.05  # reconstruction error at or below this -> benign # BUG: Needs to be calibrated
+</pre><h3>Mutant 174</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -52,7 +52,7 @@
+ # weight shapes alone (it only affects the forward pass, not layer sizes).
+ EMBEDDING_DIM = 768
+ AE_INPUT_DIM = EMBEDDING_DIM + 9
+-AE_ARGS = Args(ae_bottleneck=64, n_experts=8, expert_k=2)
++AE_ARGS = None
+ 
+ # GUESSED, not calibrated - see module docstring.
+ LOW_ERROR_THRESHOLD = 0.05  # reconstruction error at or below this -> benign # BUG: Needs to be calibrated
+</pre><h3>Mutant 175</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -55,7 +55,7 @@
+ AE_ARGS = Args(ae_bottleneck=64, n_experts=8, expert_k=2)
+ 
+ # GUESSED, not calibrated - see module docstring.
+-LOW_ERROR_THRESHOLD = 0.05  # reconstruction error at or below this -> benign # BUG: Needs to be calibrated
++LOW_ERROR_THRESHOLD = 1.05  # reconstruction error at or below this -> benign # BUG: Needs to be calibrated
+ HIGH_ERROR_THRESHOLD = 0.15  # reconstruction error at or above this -> attack # BUG: Needs to be calibrated
+ # anything in between -> undetermined, pass to the next stage
+ 
+</pre><h3>Mutant 176</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -55,7 +55,7 @@
+ AE_ARGS = Args(ae_bottleneck=64, n_experts=8, expert_k=2)
+ 
+ # GUESSED, not calibrated - see module docstring.
+-LOW_ERROR_THRESHOLD = 0.05  # reconstruction error at or below this -> benign # BUG: Needs to be calibrated
++LOW_ERROR_THRESHOLD = None  # reconstruction error at or below this -> benign # BUG: Needs to be calibrated
+ HIGH_ERROR_THRESHOLD = 0.15  # reconstruction error at or above this -> attack # BUG: Needs to be calibrated
+ # anything in between -> undetermined, pass to the next stage
+ 
+</pre><h3>Mutant 177</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -56,7 +56,7 @@
+ 
+ # GUESSED, not calibrated - see module docstring.
+ LOW_ERROR_THRESHOLD = 0.05  # reconstruction error at or below this -> benign # BUG: Needs to be calibrated
+-HIGH_ERROR_THRESHOLD = 0.15  # reconstruction error at or above this -> attack # BUG: Needs to be calibrated
++HIGH_ERROR_THRESHOLD = 1.15  # reconstruction error at or above this -> attack # BUG: Needs to be calibrated
+ # anything in between -> undetermined, pass to the next stage
+ 
+ # TODO: Need to calibrate the low error and high error threshold for this model
+</pre><h3>Mutant 178</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -56,7 +56,7 @@
+ 
+ # GUESSED, not calibrated - see module docstring.
+ LOW_ERROR_THRESHOLD = 0.05  # reconstruction error at or below this -> benign # BUG: Needs to be calibrated
+-HIGH_ERROR_THRESHOLD = 0.15  # reconstruction error at or above this -> attack # BUG: Needs to be calibrated
++HIGH_ERROR_THRESHOLD = None  # reconstruction error at or above this -> attack # BUG: Needs to be calibrated
+ # anything in between -> undetermined, pass to the next stage
+ 
+ # TODO: Need to calibrate the low error and high error threshold for this model
+</pre><h3>Mutant 179</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -71,7 +71,7 @@
+     ):
+         super().__init__(phase=Phase.autoencoder)
+ 
+-        if not Path(model_path).is_file():
++        if  Path(model_path).is_file():
+             raise ModelUnavailableError(
+                 f"autoencoder checkpoint not found at {model_path}"
+             )
+</pre><h3>Mutant 180</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -73,7 +73,7 @@
+ 
+         if not Path(model_path).is_file():
+             raise ModelUnavailableError(
+-                f"autoencoder checkpoint not found at {model_path}"
++                f"XXautoencoder checkpoint not found at {model_path}XX"
+             )
+ 
+         self.low_error_threshold = low_error_threshold
+</pre><h3>Mutant 181</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -76,7 +76,7 @@
+                 f"autoencoder checkpoint not found at {model_path}"
+             )
+ 
+-        self.low_error_threshold = low_error_threshold
++        self.low_error_threshold = None
+         self.high_error_threshold = high_error_threshold
+         self.structural_extractor = StructuralExtractor()
+         self.standard_scaler = StandardScaler.load()
+</pre><h3>Mutant 182</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -77,7 +77,7 @@
+             )
+ 
+         self.low_error_threshold = low_error_threshold
+-        self.high_error_threshold = high_error_threshold
++        self.high_error_threshold = None
+         self.structural_extractor = StructuralExtractor()
+         self.standard_scaler = StandardScaler.load()
+ 
+</pre><h3>Mutant 183</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -78,7 +78,7 @@
+ 
+         self.low_error_threshold = low_error_threshold
+         self.high_error_threshold = high_error_threshold
+-        self.structural_extractor = StructuralExtractor()
++        self.structural_extractor = None
+         self.standard_scaler = StandardScaler.load()
+ 
+         self.model = NormalityAE(input_dim=AE_INPUT_DIM, args=AE_ARGS)
+</pre><h3>Mutant 184</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -79,7 +79,7 @@
+         self.low_error_threshold = low_error_threshold
+         self.high_error_threshold = high_error_threshold
+         self.structural_extractor = StructuralExtractor()
+-        self.standard_scaler = StandardScaler.load()
++        self.standard_scaler = None
+ 
+         self.model = NormalityAE(input_dim=AE_INPUT_DIM, args=AE_ARGS)
+         checkpoint = torch.load(model_path, map_location="cpu", weights_only=False)
+</pre><h3>Mutant 185</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -81,7 +81,7 @@
+         self.structural_extractor = StructuralExtractor()
+         self.standard_scaler = StandardScaler.load()
+ 
+-        self.model = NormalityAE(input_dim=AE_INPUT_DIM, args=AE_ARGS)
++        self.model = None
+         checkpoint = torch.load(model_path, map_location="cpu", weights_only=False)
+         self.model.load_state_dict(checkpoint["model"])
+         self.model.eval()
+</pre><h3>Mutant 186</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -82,7 +82,7 @@
+         self.standard_scaler = StandardScaler.load()
+ 
+         self.model = NormalityAE(input_dim=AE_INPUT_DIM, args=AE_ARGS)
+-        checkpoint = torch.load(model_path, map_location="cpu", weights_only=False)
++        checkpoint = torch.load(model_path, map_location="XXcpuXX", weights_only=False)
+         self.model.load_state_dict(checkpoint["model"])
+         self.model.eval()
+ 
+</pre><h3>Mutant 187</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -82,7 +82,7 @@
+         self.standard_scaler = StandardScaler.load()
+ 
+         self.model = NormalityAE(input_dim=AE_INPUT_DIM, args=AE_ARGS)
+-        checkpoint = torch.load(model_path, map_location="cpu", weights_only=False)
++        checkpoint = torch.load(model_path, map_location="cpu", weights_only=True)
+         self.model.load_state_dict(checkpoint["model"])
+         self.model.eval()
+ 
+</pre><h3>Mutant 188</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -82,7 +82,7 @@
+         self.standard_scaler = StandardScaler.load()
+ 
+         self.model = NormalityAE(input_dim=AE_INPUT_DIM, args=AE_ARGS)
+-        checkpoint = torch.load(model_path, map_location="cpu", weights_only=False)
++        checkpoint = None
+         self.model.load_state_dict(checkpoint["model"])
+         self.model.eval()
+ 
+</pre><h3>Mutant 189</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -83,7 +83,7 @@
+ 
+         self.model = NormalityAE(input_dim=AE_INPUT_DIM, args=AE_ARGS)
+         checkpoint = torch.load(model_path, map_location="cpu", weights_only=False)
+-        self.model.load_state_dict(checkpoint["model"])
++        self.model.load_state_dict(checkpoint["XXmodelXX"])
+         self.model.eval()
+ 
+     def build_input_vector(self, text: str, embedding) -> torch.Tensor:
+</pre><h3>Mutant 190</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -88,7 +88,7 @@
+ 
+     def build_input_vector(self, text: str, embedding) -> torch.Tensor:
+         """Turns prompt text (+ optional pre-computed embedding) into the 777-dim vector the model expects."""
+-        if embedding is None:
++        if embedding is not None:
+             embedding = embed_text(text)
+ 
+         embedding = np.array(embedding, dtype="float32")
+</pre><h3>Mutant 191</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -89,7 +89,7 @@
+     def build_input_vector(self, text: str, embedding) -> torch.Tensor:
+         """Turns prompt text (+ optional pre-computed embedding) into the 777-dim vector the model expects."""
+         if embedding is None:
+-            embedding = embed_text(text)
++            embedding = None
+ 
+         embedding = np.array(embedding, dtype="float32")
+         structural = np.array(
+</pre><h3>Mutant 192</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -91,7 +91,7 @@
+         if embedding is None:
+             embedding = embed_text(text)
+ 
+-        embedding = np.array(embedding, dtype="float32")
++        embedding = np.array(embedding, dtype="XXfloat32XX")
+         structural = np.array(
+             self.structural_extractor.structural_fn(text), dtype="float32"
+         )
+</pre><h3>Mutant 193</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -91,7 +91,7 @@
+         if embedding is None:
+             embedding = embed_text(text)
+ 
+-        embedding = np.array(embedding, dtype="float32")
++        embedding = None
+         structural = np.array(
+             self.structural_extractor.structural_fn(text), dtype="float32"
+         )
+</pre><h3>Mutant 194</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -93,7 +93,7 @@
+ 
+         embedding = np.array(embedding, dtype="float32")
+         structural = np.array(
+-            self.structural_extractor.structural_fn(text), dtype="float32"
++            self.structural_extractor.structural_fn(text), dtype="XXfloat32XX"
+         )
+         full_vector = np.concatenate([embedding, structural])
+ 
+</pre><h3>Mutant 195</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -92,9 +92,7 @@
+             embedding = embed_text(text)
+ 
+         embedding = np.array(embedding, dtype="float32")
+-        structural = np.array(
+-            self.structural_extractor.structural_fn(text), dtype="float32"
+-        )
++        structural = None
+         full_vector = np.concatenate([embedding, structural])
+ 
+         full_vector = torch.from_numpy(full_vector)
+</pre><h3>Mutant 196</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -95,7 +95,7 @@
+         structural = np.array(
+             self.structural_extractor.structural_fn(text), dtype="float32"
+         )
+-        full_vector = np.concatenate([embedding, structural])
++        full_vector = None
+ 
+         full_vector = torch.from_numpy(full_vector)
+         full_vector = self.standard_scaler.transform(full_vector)
+</pre><h3>Mutant 197</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -97,7 +97,7 @@
+         )
+         full_vector = np.concatenate([embedding, structural])
+ 
+-        full_vector = torch.from_numpy(full_vector)
++        full_vector = None
+         full_vector = self.standard_scaler.transform(full_vector)
+ 
+         # model expects a batch, so add a batch dimension of size 1
+</pre><h3>Mutant 198</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -98,7 +98,7 @@
+         full_vector = np.concatenate([embedding, structural])
+ 
+         full_vector = torch.from_numpy(full_vector)
+-        full_vector = self.standard_scaler.transform(full_vector)
++        full_vector = None
+ 
+         # model expects a batch, so add a batch dimension of size 1
+         return full_vector.unsqueeze(0)
+</pre><h3>Mutant 199</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -101,7 +101,7 @@
+         full_vector = self.standard_scaler.transform(full_vector)
+ 
+         # model expects a batch, so add a batch dimension of size 1
+-        return full_vector.unsqueeze(0)
++        return full_vector.unsqueeze(1)
+ 
+     def reconstruction_error(self, text: str, embedding) -> float:
+         input_vector = self.build_input_vector(text, embedding)
+</pre><h3>Mutant 200</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -104,7 +104,7 @@
+         return full_vector.unsqueeze(0)
+ 
+     def reconstruction_error(self, text: str, embedding) -> float:
+-        input_vector = self.build_input_vector(text, embedding)
++        input_vector = None
+         with torch.no_grad():
+             result = self.model(input_vector)
+             error = torch.mean((result.recon - input_vector) ** 2)
+</pre><h3>Mutant 201</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -106,7 +106,7 @@
+     def reconstruction_error(self, text: str, embedding) -> float:
+         input_vector = self.build_input_vector(text, embedding)
+         with torch.no_grad():
+-            result = self.model(input_vector)
++            result = None
+             error = torch.mean((result.recon - input_vector) ** 2)
+         return float(error.item())
+ 
+</pre><h3>Mutant 202</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -107,7 +107,7 @@
+         input_vector = self.build_input_vector(text, embedding)
+         with torch.no_grad():
+             result = self.model(input_vector)
+-            error = torch.mean((result.recon - input_vector) ** 2)
++            error = torch.mean((result.recon + input_vector) ** 2)
+         return float(error.item())
+ 
+     def verdict(self, input: PhaseInput) -> Result[SuccessReturn, PhaseError]:
+</pre><h3>Mutant 203</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -107,7 +107,7 @@
+         input_vector = self.build_input_vector(text, embedding)
+         with torch.no_grad():
+             result = self.model(input_vector)
+-            error = torch.mean((result.recon - input_vector) ** 2)
++            error = torch.mean((result.recon - input_vector) * 2)
+         return float(error.item())
+ 
+     def verdict(self, input: PhaseInput) -> Result[SuccessReturn, PhaseError]:
+</pre><h3>Mutant 204</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -107,7 +107,7 @@
+         input_vector = self.build_input_vector(text, embedding)
+         with torch.no_grad():
+             result = self.model(input_vector)
+-            error = torch.mean((result.recon - input_vector) ** 2)
++            error = torch.mean((result.recon - input_vector) ** 3)
+         return float(error.item())
+ 
+     def verdict(self, input: PhaseInput) -> Result[SuccessReturn, PhaseError]:
+</pre><h3>Mutant 205</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -107,7 +107,7 @@
+         input_vector = self.build_input_vector(text, embedding)
+         with torch.no_grad():
+             result = self.model(input_vector)
+-            error = torch.mean((result.recon - input_vector) ** 2)
++            error = None
+         return float(error.item())
+ 
+     def verdict(self, input: PhaseInput) -> Result[SuccessReturn, PhaseError]:
+</pre><h3>Mutant 206</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -111,7 +111,7 @@
+         return float(error.item())
+ 
+     def verdict(self, input: PhaseInput) -> Result[SuccessReturn, PhaseError]:
+-        text = input.require_text()
++        text = None
+ 
+         try:
+             error = self.reconstruction_error(text, input.embedding)
+</pre><h3>Mutant 207</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -114,7 +114,7 @@
+         text = input.require_text()
+ 
+         try:
+-            error = self.reconstruction_error(text, input.embedding)
++            error = None
+         except Exception as e:
+             return Err(InferenceError(f"autoencoder inference failed: {e}"))
+ 
+</pre><h3>Mutant 208</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -116,7 +116,7 @@
+         try:
+             error = self.reconstruction_error(text, input.embedding)
+         except Exception as e:
+-            return Err(InferenceError(f"autoencoder inference failed: {e}"))
++            return Err(InferenceError(f"XXautoencoder inference failed: {e}XX"))
+ 
+         if error <= self.low_error_threshold:
+             verdict = Verdict.benign
+</pre><h3>Mutant 209</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -118,7 +118,7 @@
+         except Exception as e:
+             return Err(InferenceError(f"autoencoder inference failed: {e}"))
+ 
+-        if error <= self.low_error_threshold:
++        if error < self.low_error_threshold:
+             verdict = Verdict.benign
+             # error near 0 -> confidence near 1; error near the threshold -> confidence near 0
+             confidence = max(0.0, min(1.0, 1.0 - (error / self.low_error_threshold)))
+</pre><h3>Mutant 210</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -119,7 +119,7 @@
+             return Err(InferenceError(f"autoencoder inference failed: {e}"))
+ 
+         if error <= self.low_error_threshold:
+-            verdict = Verdict.benign
++            verdict = None
+             # error near 0 -> confidence near 1; error near the threshold -> confidence near 0
+             confidence = max(0.0, min(1.0, 1.0 - (error / self.low_error_threshold)))
+         elif error >= self.high_error_threshold:
+</pre><h3>Mutant 211</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -121,7 +121,7 @@
+         if error <= self.low_error_threshold:
+             verdict = Verdict.benign
+             # error near 0 -> confidence near 1; error near the threshold -> confidence near 0
+-            confidence = max(0.0, min(1.0, 1.0 - (error / self.low_error_threshold)))
++            confidence = max(1.0, min(1.0, 1.0 - (error / self.low_error_threshold)))
+         elif error >= self.high_error_threshold:
+             verdict = Verdict.attack
+             # error at the threshold -> confidence near 0; error far past it -> confidence near 1
+</pre><h3>Mutant 212</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -121,7 +121,7 @@
+         if error <= self.low_error_threshold:
+             verdict = Verdict.benign
+             # error near 0 -> confidence near 1; error near the threshold -> confidence near 0
+-            confidence = max(0.0, min(1.0, 1.0 - (error / self.low_error_threshold)))
++            confidence = max(0.0, min(2.0, 1.0 - (error / self.low_error_threshold)))
+         elif error >= self.high_error_threshold:
+             verdict = Verdict.attack
+             # error at the threshold -> confidence near 0; error far past it -> confidence near 1
+</pre><h3>Mutant 213</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -121,7 +121,7 @@
+         if error <= self.low_error_threshold:
+             verdict = Verdict.benign
+             # error near 0 -> confidence near 1; error near the threshold -> confidence near 0
+-            confidence = max(0.0, min(1.0, 1.0 - (error / self.low_error_threshold)))
++            confidence = max(0.0, min(1.0, 2.0 - (error / self.low_error_threshold)))
+         elif error >= self.high_error_threshold:
+             verdict = Verdict.attack
+             # error at the threshold -> confidence near 0; error far past it -> confidence near 1
+</pre><h3>Mutant 214</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -121,7 +121,7 @@
+         if error <= self.low_error_threshold:
+             verdict = Verdict.benign
+             # error near 0 -> confidence near 1; error near the threshold -> confidence near 0
+-            confidence = max(0.0, min(1.0, 1.0 - (error / self.low_error_threshold)))
++            confidence = max(0.0, min(1.0, 1.0 + (error / self.low_error_threshold)))
+         elif error >= self.high_error_threshold:
+             verdict = Verdict.attack
+             # error at the threshold -> confidence near 0; error far past it -> confidence near 1
+</pre><h3>Mutant 215</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -121,7 +121,7 @@
+         if error <= self.low_error_threshold:
+             verdict = Verdict.benign
+             # error near 0 -> confidence near 1; error near the threshold -> confidence near 0
+-            confidence = max(0.0, min(1.0, 1.0 - (error / self.low_error_threshold)))
++            confidence = max(0.0, min(1.0, 1.0 - (error * self.low_error_threshold)))
+         elif error >= self.high_error_threshold:
+             verdict = Verdict.attack
+             # error at the threshold -> confidence near 0; error far past it -> confidence near 1
+</pre><h3>Mutant 216</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -121,7 +121,7 @@
+         if error <= self.low_error_threshold:
+             verdict = Verdict.benign
+             # error near 0 -> confidence near 1; error near the threshold -> confidence near 0
+-            confidence = max(0.0, min(1.0, 1.0 - (error / self.low_error_threshold)))
++            confidence = None
+         elif error >= self.high_error_threshold:
+             verdict = Verdict.attack
+             # error at the threshold -> confidence near 0; error far past it -> confidence near 1
+</pre><h3>Mutant 217</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -122,7 +122,7 @@
+             verdict = Verdict.benign
+             # error near 0 -> confidence near 1; error near the threshold -> confidence near 0
+             confidence = max(0.0, min(1.0, 1.0 - (error / self.low_error_threshold)))
+-        elif error >= self.high_error_threshold:
++        elif error > self.high_error_threshold:
+             verdict = Verdict.attack
+             # error at the threshold -> confidence near 0; error far past it -> confidence near 1
+             confidence = max(0.0, min(1.0, error / (self.high_error_threshold * 2)))
+</pre><h3>Mutant 218</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -123,7 +123,7 @@
+             # error near 0 -> confidence near 1; error near the threshold -> confidence near 0
+             confidence = max(0.0, min(1.0, 1.0 - (error / self.low_error_threshold)))
+         elif error >= self.high_error_threshold:
+-            verdict = Verdict.attack
++            verdict = None
+             # error at the threshold -> confidence near 0; error far past it -> confidence near 1
+             confidence = max(0.0, min(1.0, error / (self.high_error_threshold * 2)))
+         else:
+</pre><h3>Mutant 219</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -125,7 +125,7 @@
+         elif error >= self.high_error_threshold:
+             verdict = Verdict.attack
+             # error at the threshold -> confidence near 0; error far past it -> confidence near 1
+-            confidence = max(0.0, min(1.0, error / (self.high_error_threshold * 2)))
++            confidence = max(1.0, min(1.0, error / (self.high_error_threshold * 2)))
+         else:
+             verdict = Verdict.undetermined
+             confidence = 0.0
+</pre><h3>Mutant 220</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -125,7 +125,7 @@
+         elif error >= self.high_error_threshold:
+             verdict = Verdict.attack
+             # error at the threshold -> confidence near 0; error far past it -> confidence near 1
+-            confidence = max(0.0, min(1.0, error / (self.high_error_threshold * 2)))
++            confidence = max(0.0, min(2.0, error / (self.high_error_threshold * 2)))
+         else:
+             verdict = Verdict.undetermined
+             confidence = 0.0
+</pre><h3>Mutant 221</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -125,7 +125,7 @@
+         elif error >= self.high_error_threshold:
+             verdict = Verdict.attack
+             # error at the threshold -> confidence near 0; error far past it -> confidence near 1
+-            confidence = max(0.0, min(1.0, error / (self.high_error_threshold * 2)))
++            confidence = max(0.0, min(1.0, error * (self.high_error_threshold * 2)))
+         else:
+             verdict = Verdict.undetermined
+             confidence = 0.0
+</pre><h3>Mutant 222</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -125,7 +125,7 @@
+         elif error >= self.high_error_threshold:
+             verdict = Verdict.attack
+             # error at the threshold -> confidence near 0; error far past it -> confidence near 1
+-            confidence = max(0.0, min(1.0, error / (self.high_error_threshold * 2)))
++            confidence = max(0.0, min(1.0, error / (self.high_error_threshold / 2)))
+         else:
+             verdict = Verdict.undetermined
+             confidence = 0.0
+</pre><h3>Mutant 223</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -125,7 +125,7 @@
+         elif error >= self.high_error_threshold:
+             verdict = Verdict.attack
+             # error at the threshold -> confidence near 0; error far past it -> confidence near 1
+-            confidence = max(0.0, min(1.0, error / (self.high_error_threshold * 2)))
++            confidence = max(0.0, min(1.0, error / (self.high_error_threshold * 3)))
+         else:
+             verdict = Verdict.undetermined
+             confidence = 0.0
+</pre><h3>Mutant 224</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -125,7 +125,7 @@
+         elif error >= self.high_error_threshold:
+             verdict = Verdict.attack
+             # error at the threshold -> confidence near 0; error far past it -> confidence near 1
+-            confidence = max(0.0, min(1.0, error / (self.high_error_threshold * 2)))
++            confidence = None
+         else:
+             verdict = Verdict.undetermined
+             confidence = 0.0
+</pre><h3>Mutant 225</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -127,7 +127,7 @@
+             # error at the threshold -> confidence near 0; error far past it -> confidence near 1
+             confidence = max(0.0, min(1.0, error / (self.high_error_threshold * 2)))
+         else:
+-            verdict = Verdict.undetermined
++            verdict = None
+             confidence = 0.0
+ 
+         return Ok(
+</pre><h3>Mutant 226</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -128,7 +128,7 @@
+             confidence = max(0.0, min(1.0, error / (self.high_error_threshold * 2)))
+         else:
+             verdict = Verdict.undetermined
+-            confidence = 0.0
++            confidence = 1.0
+ 
+         return Ok(
+             SuccessReturn(verdict=verdict, at_phase=self.phase, confidence=confidence)
+</pre><h3>Mutant 227</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -128,7 +128,7 @@
+             confidence = max(0.0, min(1.0, error / (self.high_error_threshold * 2)))
+         else:
+             verdict = Verdict.undetermined
+-            confidence = 0.0
++            confidence = None
+ 
+         return Ok(
+             SuccessReturn(verdict=verdict, at_phase=self.phase, confidence=confidence)
+</pre><h3>Mutant 228</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -137,7 +137,7 @@
+     def verdict_with_data(
+         self, input: PhaseInput
+     ) -> Result[SuccessForReview, PhaseError]:
+-        result = self.verdict(input)
++        result = None
+         if result.is_err():
+             return result
+ 
+</pre><h3>Mutant 229</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -141,7 +141,7 @@
+         if result.is_err():
+             return result
+ 
+-        text = input.require_text()
++        text = None
+         embedding = (
+             input.embedding
+             if input.embedding is not None
+</pre><h3>Mutant 230</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -144,7 +144,7 @@
+         text = input.require_text()
+         embedding = (
+             input.embedding
+-            if input.embedding is not None
++            if input.embedding is  None
+             else np.array(embed_text(text))
+         )
+ 
+</pre><h3>Mutant 231</h3><pre>--- app/pipeline/autoencoder.py
++++ app/pipeline/autoencoder.py
+@@ -142,11 +142,7 @@
+             return result
+ 
+         text = input.require_text()
+-        embedding = (
+-            input.embedding
+-            if input.embedding is not None
+-            else np.array(embed_text(text))
+-        )
++        embedding = None
+ 
+         return Ok(
+             SuccessForReview(
+</pre></body></html>

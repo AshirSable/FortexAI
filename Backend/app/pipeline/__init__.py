@@ -7,10 +7,12 @@
 # another enum that would indicate the phase
 # a struct that would keep this enum with confidence and a record of the phase
 # another struct which would keep the previous struct with the input data...
+import time
 from abc import ABC, abstractmethod
 from dataclasses import replace
 
 from app.type_store import (
+    Ok,
     Phase,
     PhaseInput,
     Result,
@@ -45,6 +47,15 @@ class Pipeline:
         current_input = input
         last_result = None
 
+        # measured from the moment the input arrives here to the moment a
+        # verdict is produced - this is "detection time" for the caller
+        # (main.py), not raw HTTP time. Whichever stage resolves the verdict,
+        # the latency stamped on the result is the sum of every stage that
+        # ran before it plus its own time - e.g. if bert resolves it, that's
+        # semantic_search + autoencoder + bert added together, since they ran
+        # one after another and the clock never stopped in between.
+        start_time = time.perf_counter()
+
         for phase in self.phases:
             result = phase.verdict(current_input)
 
@@ -53,8 +64,11 @@ class Pipeline:
                 # of guessing what the broken stage would have said.
                 return result
 
-            last_result = result
             success = result.unwrap()
+            elapsed_ms = (time.perf_counter() - start_time) * 1000
+            success = replace(success, latency_ms=elapsed_ms)
+            result = Ok(success)
+            last_result = result
 
             # TODO: The data should pass if auto-encoder detects it as an attack, as then it would be passed to the further stages
             # The pipeline should stop if auto-encoder calls it normal
@@ -68,9 +82,10 @@ class Pipeline:
                 # it should stop when benign in auto encoder
                 return result
 
-            # this stage had no opinion - remember its result and move on to
-            # the next stage, carrying the prior results forward so later
-            # stages can see what already ran.
+            # this stage had no opinion - remember its result (now carrying
+            # its own cumulative latency) and move on to the next stage,
+            # carrying the prior results forward so later stages can see
+            # what already ran.
             prior_results = dict(current_input._prior_results)
             prior_results[phase.phase] = success
             current_input = replace(current_input, _prior_results=prior_results)

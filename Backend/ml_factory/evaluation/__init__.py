@@ -1,3 +1,4 @@
+TOTAL_LOSS = "total_loss"
 MSE_LOSS = "mse_loss"
 OE_LOSS = "oe_loss"
 DIVERSITY_LOSS = "diversity_loss"

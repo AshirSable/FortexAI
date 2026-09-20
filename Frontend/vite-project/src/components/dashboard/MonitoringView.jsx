@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
 import DonutChart from '../DonutChart';
-import { useToast } from '../Toast';
+import { useToast } from '../ToastContext';
 import {
   ALL_PROMPTS, KPI_BY_PERIOD, LAYER_OPTIONS,
-  buildTrend, buildDonut, buildKpiList, fmtTime,
+  buildTrend, buildDonut, buildKpiList, fmtTime, now,
 } from '../../data/mockData';
 import './MonitoringView.css';
 
@@ -41,13 +41,13 @@ export default function MonitoringView() {
   const donut = useMemo(() => buildDonut(kpiRaw), [kpiRaw]);
 
   const rows = useMemo(() => {
-    const now = Date.now();
+    const nowMs = now();
     const rangeMs = { '24h': 86400000, '7d': 7 * 86400000, '30d': 30 * 86400000 }[dateRange];
     let filtered = ALL_PROMPTS.filter((p) => {
       if (search && !(p.sender.toLowerCase().includes(search.toLowerCase()) || p.preview.toLowerCase().includes(search.toLowerCase()))) return false;
       if (verdictFilter !== 'all' && p.verdict !== verdictFilter) return false;
       if (layerFilter !== 'all' && p.layer !== layerFilter) return false;
-      if (rangeMs && now - p.timestamp > rangeMs) return false;
+      if (rangeMs && nowMs - p.timestamp > rangeMs) return false;
       return true;
     });
     filtered = filtered.slice().sort((a, b) => (sortDir === 'desc' ? b.confidence - a.confidence : a.confidence - b.confidence));

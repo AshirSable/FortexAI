@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import fortexLogo from '../../assets/fortexai-logo.png';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/auth-context';
 import './Sidebar.css';
 
 function getInitials(name) {

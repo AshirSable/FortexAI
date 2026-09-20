@@ -3,7 +3,13 @@ import math
 from pathlib import Path
 
 
-def plotting_logs(train_logs: dict[str, list], val_logs: dict[str, list], path: Path):
+def plotting_logs(
+    train_logs: dict[str, list],
+    val_logs: dict[str, list],
+    path: Path,
+    cols_mult: float = 6.5,
+    rows_mult: float = 5.5,
+):
 
     key_logs = set(list(train_logs.keys()) + list(val_logs.keys()))
 
@@ -16,7 +22,7 @@ def plotting_logs(train_logs: dict[str, list], val_logs: dict[str, list], path: 
     rows = math.ceil(num_plots / cols)
 
     fig, axes = plt.subplots(
-        rows, cols, figsize=(cols * 4.5, rows * 3.5), squeeze=False
+        rows, cols, figsize=(cols * cols_mult, rows * rows_mult), squeeze=False
     )
     axes = axes.flatten()
 

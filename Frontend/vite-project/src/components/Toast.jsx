@@ -1,7 +1,6 @@
-import { createContext, useCallback, useContext, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
+import { ToastContext } from './ToastContext';
 import './Toast.css';
-
-const ToastContext = createContext(null);
 
 const PALETTE = {
   success: { bg: '#12271c', border: '#1f5c3a', icon: '✓' },
@@ -37,10 +36,4 @@ export function ToastProvider({ children }) {
       </div>
     </ToastContext.Provider>
   );
-}
-
-export function useToast() {
-  const ctx = useContext(ToastContext);
-  if (!ctx) throw new Error('useToast must be used within a ToastProvider');
-  return ctx;
 }

@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from json import decoder
 from typing import Optional
 
 import torch
@@ -17,31 +18,38 @@ class ModelResult:
 
 
 class BaseNormalAutoEncoder(nn.Module):
-    def __init__(self, input_dim: int, args: Args):
+    def __init__(self, input_dim: int, args: Args, with_dropout=False):
         super().__init__()
         if args.ae_bottleneck > 100:
             raise AssertionError(
                 f"bottleneck cannot be greater than 100, currently got: {args.ae_bottleneck}"
             )
 
+        dropout_value = args.dropout if with_dropout else 0.0
+
         self.__encoder = nn.Sequential(
             nn.Linear(input_dim, 512),
             nn.SiLU(),
+            nn.Dropout(dropout_value),
             nn.Linear(512, 256),
             nn.SiLU(),
+            nn.Dropout(dropout_value),
             nn.Linear(256, 100),
             nn.SiLU(),
+            nn.Dropout(dropout_value),
             nn.Linear(100, args.ae_bottleneck),
-            nn.SiLU(),
         )
 
         self.__decoder = nn.Sequential(
             nn.Linear(args.ae_bottleneck, 100),
             nn.SiLU(),
+            nn.Dropout(dropout_value),
             nn.Linear(100, 256),
             nn.SiLU(),
+            nn.Dropout(dropout_value),
             nn.Linear(256, 512),
             nn.SiLU(),
+            nn.Dropout(dropout_value),
             nn.Linear(512, input_dim),
         )
 
@@ -66,8 +74,9 @@ class BaseNormalAutoEncoder(nn.Module):
 
 
 class MLP(nn.Module):
-    def __init__(self, input_dim: int, args: Args):
+    def __init__(self, input_dim: int, args: Args, with_dropout: bool = False):
         super().__init__()
+        dropout_value = args.dropout if with_dropout else 0.0
         if input_dim < args.ae_bottleneck:
             raise ValueError(
                 f"input_dim must not be less than the bottleneck: "
@@ -77,6 +86,7 @@ class MLP(nn.Module):
             nn.Linear(input_dim, input_dim // 2),
             nn.RMSNorm(input_dim // 2),
             nn.SiLU(),
+            nn.Dropout(dropout_value),
             nn.Linear(input_dim // 2, args.ae_bottleneck),
         )
 
@@ -85,28 +95,39 @@ class MLP(nn.Module):
 
 
 class NormalityAE(nn.Module):
-    def __init__(self, input_dim: int, args: Args):
+    def __init__(
+        self, input_dim: int, args: Args, with_dropout=False, _mode_2: bool = False
+    ):
         super().__init__()
-        dims = [input_dim, 512, 256, args.ae_bottleneck]
+        dropout_value = args.dropout if with_dropout else 0.0
+        if _mode_2:
+            dims = [input_dim, 512, 256, 128, args.ae_bottleneck]
+
+        else:
+            dims = [input_dim, 512, 256, args.ae_bottleneck]
         self.k_expert = args.expert_k
         self.n_experts = args.n_experts
 
         encoder_layers = []
         for i in range(len(dims) - 1):
             encoder_layers.append(nn.Linear(dims[i], dims[i + 1]))
-            encoder_layers.append(nn.SiLU())
+            if (i + 1) != (len(dims) - 1):
+                encoder_layers.append(nn.SiLU())
+
+            encoder_layers.append(nn.Dropout(dropout_value))
         self.encoder = nn.Sequential(*encoder_layers)
 
         decoder_layers = []
         for i in reversed(range(len(dims) - 1)):
             decoder_layers.append(nn.Linear(dims[i + 1], dims[i]))
+            decoder_layers.append(nn.Dropout(dropout_value))
             if i != 0:
                 decoder_layers.append(nn.SiLU())
         self.decoder = nn.Sequential(*decoder_layers)
 
         self.router = nn.Linear(dims[-1], self.n_experts)
         self.experts = nn.ModuleList(
-            [MLP(dims[-1], args) for _ in range(self.n_experts)]
+            [MLP(dims[-1], args, with_dropout) for _ in range(self.n_experts)]
         )
 
     def forward(self, X: torch.Tensor):

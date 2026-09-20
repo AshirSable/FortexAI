@@ -1,0 +1,474 @@
+<html><body><h1>app/type_store/__init__.py</h1>Killed 0 out of 43 mutants<h2>Survived</h2>Survived mutation testing. These mutants show holes in your test suite.<h3>Mutant 310</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -9,7 +9,7 @@
+ 
+ from app.type_store._error import InputValidationError
+ 
+-T = TypeVar("T")
++T = TypeVar("XXTXX")
+ E = TypeVar("E")
+ 
+ 
+</pre><h3>Mutant 311</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -9,7 +9,7 @@
+ 
+ from app.type_store._error import InputValidationError
+ 
+-T = TypeVar("T")
++T = None
+ E = TypeVar("E")
+ 
+ 
+</pre><h3>Mutant 312</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -10,7 +10,7 @@
+ from app.type_store._error import InputValidationError
+ 
+ T = TypeVar("T")
+-E = TypeVar("E")
++E = TypeVar("XXEXX")
+ 
+ 
+ @dataclass(frozen=True)
+</pre><h3>Mutant 313</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -10,7 +10,7 @@
+ from app.type_store._error import InputValidationError
+ 
+ T = TypeVar("T")
+-E = TypeVar("E")
++E = None
+ 
+ 
+ @dataclass(frozen=True)
+</pre><h3>Mutant 314</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -13,7 +13,7 @@
+ E = TypeVar("E")
+ 
+ 
+-@dataclass(frozen=True)
++@dataclass(frozen=False)
+ class Ok(Generic[T]):
+     _value: T
+ 
+</pre><h3>Mutant 315</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -12,8 +12,6 @@
+ T = TypeVar("T")
+ E = TypeVar("E")
+ 
+-
+-@dataclass(frozen=True)
+ class Ok(Generic[T]):
+     _value: T
+ 
+</pre><h3>Mutant 316</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -18,7 +18,7 @@
+     _value: T
+ 
+     def is_ok(self) -> bool:
+-        return True
++        return False
+ 
+     def is_err(self) -> bool:
+         return False
+</pre><h3>Mutant 317</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -21,7 +21,7 @@
+         return True
+ 
+     def is_err(self) -> bool:
+-        return False
++        return True
+ 
+     def unwrap(self) -> T:
+         return self._value
+</pre><h3>Mutant 318</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -30,7 +30,7 @@
+         return self._value
+ 
+ 
+-@dataclass(frozen=True)
++@dataclass(frozen=False)
+ class Err(Generic[E]):
+     _error: E
+ 
+</pre><h3>Mutant 319</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -29,8 +29,6 @@
+     def unwrap_or(self, default: T) -> T:
+         return self._value
+ 
+-
+-@dataclass(frozen=True)
+ class Err(Generic[E]):
+     _error: E
+ 
+</pre><h3>Mutant 320</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -35,7 +35,7 @@
+     _error: E
+ 
+     def is_ok(self) -> bool:
+-        return False
++        return True
+ 
+     def is_err(self) -> bool:
+         return True
+</pre><h3>Mutant 321</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -38,7 +38,7 @@
+         return False
+ 
+     def is_err(self) -> bool:
+-        return True
++        return False
+ 
+     def unwrap(self) -> NoReturn:
+         raise ValueError(f"Called Unwrap on an Err value: {self._error}")
+</pre><h3>Mutant 322</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -41,7 +41,7 @@
+         return True
+ 
+     def unwrap(self) -> NoReturn:
+-        raise ValueError(f"Called Unwrap on an Err value: {self._error}")
++        raise ValueError(f"XXCalled Unwrap on an Err value: {self._error}XX")
+ 
+     def unwrap_or(self, default: T) -> T:
+         return default
+</pre><h3>Mutant 323</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -47,7 +47,7 @@
+         return default
+ 
+ 
+-Result: TypeAlias = Ok[T] | Err[E]
++Result: TypeAlias = Ok[T] & Err[E]
+ 
+ 
+ @dataclass(frozen=True)
+</pre><h3>Mutant 324</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -47,7 +47,7 @@
+         return default
+ 
+ 
+-Result: TypeAlias = Ok[T] | Err[E]
++Result: TypeAlias = None
+ 
+ 
+ @dataclass(frozen=True)
+</pre><h3>Mutant 325</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -50,7 +50,7 @@
+ Result: TypeAlias = Ok[T] | Err[E]
+ 
+ 
+-@dataclass(frozen=True)
++@dataclass(frozen=False)
+ class PhaseInput:
+     text: str | None = None
+     embedding: torch.Tensor | np.ndarray | None = None
+</pre><h3>Mutant 326</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -49,8 +49,6 @@
+ 
+ Result: TypeAlias = Ok[T] | Err[E]
+ 
+-
+-@dataclass(frozen=True)
+ class PhaseInput:
+     text: str | None = None
+     embedding: torch.Tensor | np.ndarray | None = None
+</pre><h3>Mutant 327</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -52,7 +52,7 @@
+ 
+ @dataclass(frozen=True)
+ class PhaseInput:
+-    text: str | None = None
++    text: str & None = None
+     embedding: torch.Tensor | np.ndarray | None = None
+     _prior_results: dict[Phase, SuccessReturn] = field(default_factory=dict)
+ 
+</pre><h3>Mutant 328</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -52,7 +52,7 @@
+ 
+ @dataclass(frozen=True)
+ class PhaseInput:
+-    text: str | None = None
++    text: str | None = ""
+     embedding: torch.Tensor | np.ndarray | None = None
+     _prior_results: dict[Phase, SuccessReturn] = field(default_factory=dict)
+ 
+</pre><h3>Mutant 329</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -53,7 +53,7 @@
+ @dataclass(frozen=True)
+ class PhaseInput:
+     text: str | None = None
+-    embedding: torch.Tensor | np.ndarray | None = None
++    embedding: torch.Tensor & np.ndarray | None = None
+     _prior_results: dict[Phase, SuccessReturn] = field(default_factory=dict)
+ 
+     def require_text(self) -> str:
+</pre><h3>Mutant 330</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -53,7 +53,7 @@
+ @dataclass(frozen=True)
+ class PhaseInput:
+     text: str | None = None
+-    embedding: torch.Tensor | np.ndarray | None = None
++    embedding: torch.Tensor | np.ndarray & None = None
+     _prior_results: dict[Phase, SuccessReturn] = field(default_factory=dict)
+ 
+     def require_text(self) -> str:
+</pre><h3>Mutant 331</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -53,7 +53,7 @@
+ @dataclass(frozen=True)
+ class PhaseInput:
+     text: str | None = None
+-    embedding: torch.Tensor | np.ndarray | None = None
++    embedding: torch.Tensor | np.ndarray | None = ""
+     _prior_results: dict[Phase, SuccessReturn] = field(default_factory=dict)
+ 
+     def require_text(self) -> str:
+</pre><h3>Mutant 332</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -54,7 +54,7 @@
+ class PhaseInput:
+     text: str | None = None
+     embedding: torch.Tensor | np.ndarray | None = None
+-    _prior_results: dict[Phase, SuccessReturn] = field(default_factory=dict)
++    _prior_results: dict[Phase, SuccessReturn] = None
+ 
+     def require_text(self) -> str:
+         if self.text == None:
+</pre><h3>Mutant 333</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -57,7 +57,7 @@
+     _prior_results: dict[Phase, SuccessReturn] = field(default_factory=dict)
+ 
+     def require_text(self) -> str:
+-        if self.text == None:
++        if self.text != None:
+             raise InputValidationError("This phase requires `text`, got None")
+ 
+         return self.text
+</pre><h3>Mutant 334</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -58,7 +58,7 @@
+ 
+     def require_text(self) -> str:
+         if self.text == None:
+-            raise InputValidationError("This phase requires `text`, got None")
++            raise InputValidationError("XXThis phase requires `text`, got NoneXX")
+ 
+         return self.text
+ 
+</pre><h3>Mutant 335</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -63,7 +63,7 @@
+         return self.text
+ 
+     def require_embedding(self) -> torch.Tensor | np.ndarray:
+-        if self.embedding == None:
++        if self.embedding != None:
+             raise InputValidationError("This phase requires `embedding`, got None")
+ 
+         return self.embedding
+</pre><h3>Mutant 336</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -64,7 +64,7 @@
+ 
+     def require_embedding(self) -> torch.Tensor | np.ndarray:
+         if self.embedding == None:
+-            raise InputValidationError("This phase requires `embedding`, got None")
++            raise InputValidationError("XXThis phase requires `embedding`, got NoneXX")
+ 
+         return self.embedding
+ 
+</pre><h3>Mutant 337</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -70,7 +70,7 @@
+ 
+ 
+ class Verdict(int, Enum):
+-    benign = 0
++    benign = 1
+     attack = 1
+     # a stage looked at the prompt but couldn't decide either way (e.g. semantic
+     # search's "not_found", or a borderline autoencoder/classifier score).
+</pre><h3>Mutant 338</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -70,7 +70,7 @@
+ 
+ 
+ class Verdict(int, Enum):
+-    benign = 0
++    benign = None
+     attack = 1
+     # a stage looked at the prompt but couldn't decide either way (e.g. semantic
+     # search's "not_found", or a borderline autoencoder/classifier score).
+</pre><h3>Mutant 339</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -71,7 +71,7 @@
+ 
+ class Verdict(int, Enum):
+     benign = 0
+-    attack = 1
++    attack = 2
+     # a stage looked at the prompt but couldn't decide either way (e.g. semantic
+     # search's "not_found", or a borderline autoencoder/classifier score).
+     # it means "no opinion, let the next stage decide" - it is NOT the same as
+</pre><h3>Mutant 340</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -71,7 +71,7 @@
+ 
+ class Verdict(int, Enum):
+     benign = 0
+-    attack = 1
++    attack = None
+     # a stage looked at the prompt but couldn't decide either way (e.g. semantic
+     # search's "not_found", or a borderline autoencoder/classifier score).
+     # it means "no opinion, let the next stage decide" - it is NOT the same as
+</pre><h3>Mutant 341</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -76,7 +76,7 @@
+     # search's "not_found", or a borderline autoencoder/classifier score).
+     # it means "no opinion, let the next stage decide" - it is NOT the same as
+     # benign, and it is not an error either (that's what Err/PhaseError is for).
+-    undetermined = 2
++    undetermined = 3
+ 
+ 
+ class Phase(int, Enum):
+</pre><h3>Mutant 342</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -76,7 +76,7 @@
+     # search's "not_found", or a borderline autoencoder/classifier score).
+     # it means "no opinion, let the next stage decide" - it is NOT the same as
+     # benign, and it is not an error either (that's what Err/PhaseError is for).
+-    undetermined = 2
++    undetermined = None
+ 
+ 
+ class Phase(int, Enum):
+</pre><h3>Mutant 343</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -80,7 +80,7 @@
+ 
+ 
+ class Phase(int, Enum):
+-    semantic_search = 100
++    semantic_search = 101
+     autoencoder = 101
+     ensemble_bert = 102
+     llm_judge = 103
+</pre><h3>Mutant 344</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -80,7 +80,7 @@
+ 
+ 
+ class Phase(int, Enum):
+-    semantic_search = 100
++    semantic_search = None
+     autoencoder = 101
+     ensemble_bert = 102
+     llm_judge = 103
+</pre><h3>Mutant 345</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -81,7 +81,7 @@
+ 
+ class Phase(int, Enum):
+     semantic_search = 100
+-    autoencoder = 101
++    autoencoder = 102
+     ensemble_bert = 102
+     llm_judge = 103
+ 
+</pre><h3>Mutant 346</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -81,7 +81,7 @@
+ 
+ class Phase(int, Enum):
+     semantic_search = 100
+-    autoencoder = 101
++    autoencoder = None
+     ensemble_bert = 102
+     llm_judge = 103
+ 
+</pre><h3>Mutant 347</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -82,7 +82,7 @@
+ class Phase(int, Enum):
+     semantic_search = 100
+     autoencoder = 101
+-    ensemble_bert = 102
++    ensemble_bert = 103
+     llm_judge = 103
+ 
+ 
+</pre><h3>Mutant 348</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -82,7 +82,7 @@
+ class Phase(int, Enum):
+     semantic_search = 100
+     autoencoder = 101
+-    ensemble_bert = 102
++    ensemble_bert = None
+     llm_judge = 103
+ 
+ 
+</pre><h3>Mutant 349</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -83,7 +83,7 @@
+     semantic_search = 100
+     autoencoder = 101
+     ensemble_bert = 102
+-    llm_judge = 103
++    llm_judge = 104
+ 
+ 
+ @dataclass
+</pre><h3>Mutant 350</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -83,7 +83,7 @@
+     semantic_search = 100
+     autoencoder = 101
+     ensemble_bert = 102
+-    llm_judge = 103
++    llm_judge = None
+ 
+ 
+ @dataclass
+</pre><h3>Mutant 351</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -85,8 +85,6 @@
+     ensemble_bert = 102
+     llm_judge = 103
+ 
+-
+-@dataclass
+ class SuccessReturn:
+     verdict: Verdict
+     at_phase: Phase
+</pre><h3>Mutant 352</h3><pre>--- app/type_store/__init__.py
++++ app/type_store/__init__.py
+@@ -92,8 +92,6 @@
+     at_phase: Phase
+     confidence: float
+ 
+-
+-@dataclass
+ class SuccessForReview:
+     success_return: SuccessReturn
+     embedding: torch.Tensor | np.ndarray
+</pre></body></html>

@@ -91,6 +91,12 @@ class SuccessReturn:
     verdict: Verdict
     at_phase: Phase
     confidence: float
+    # total time, in milliseconds, from when the pipeline received the input
+    # to when this result was produced - i.e. the sum of every stage that ran
+    # before and including this one. Stamped by Pipeline.run(), not by the
+    # individual stage that builds this object (a lone stage has no idea how
+    # long the stages before it took), so it defaults to 0.0 until then.
+    latency_ms: float = 0.0
 
 
 @dataclass

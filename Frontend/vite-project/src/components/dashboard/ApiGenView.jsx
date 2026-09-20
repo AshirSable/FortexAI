@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useToast } from '../Toast';
+import { useToast } from '../ToastContext';
 import './ApiGenView.css';
 
 const INITIAL_KEYS = [

@@ -7,3 +7,5 @@ model_directory/development
 
 # temporarily ignored
 model_directory/released
+
+training_logs/hidden

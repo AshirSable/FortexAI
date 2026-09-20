@@ -51,9 +51,9 @@ def load_dataset_template(
     if data_file is None or not data_file.is_file():
         print(data_file, "given data file")
         print(data_file.is_file(), "given data file")
-        assert (
-            raw_data_file is not None
-        ), "Need to Provide raw_data_file if data_file is not given or found"
+        assert raw_data_file is not None, (
+            "Need to Provide raw_data_file if data_file is not given or found"
+        )
         df = pl.scan_parquet(raw_data_file)
 
         df = give_id_to_data(df)

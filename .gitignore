@@ -12,5 +12,5 @@ Backend/semantic_search/store/*.sqlite
 Backend/semantic_search/store/*.sqlite-wal
 Backend/semantic_search/store/*.sqlite-shm
 
-# trained model weights - too large for git, not reproducible from source
-Backend/ml_factory/model_file/
+# trained model weights (and scalers) - too large for git, not reproducible from source
+Backend/ml_factory/model_directory/

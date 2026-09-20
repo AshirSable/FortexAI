@@ -1,0 +1,337 @@
+<html><body><h1>auth/schemas.py</h1>Killed 0 out of 31 mutants<h2>Survived</h2>Survived mutation testing. These mutants show holes in your test suite.<h3>Mutant 52</h3><pre>--- auth/schemas.py
++++ auth/schemas.py
+@@ -4,7 +4,7 @@
+ class SignupRequest(BaseModel):
+     name: str
+     email: str
+-    company: str | None = None
++    company: str & None = None
+     password: str
+ 
+     @field_validator("email")
+</pre><h3>Mutant 53</h3><pre>--- auth/schemas.py
++++ auth/schemas.py
+@@ -4,7 +4,7 @@
+ class SignupRequest(BaseModel):
+     name: str
+     email: str
+-    company: str | None = None
++    company: str | None = ""
+     password: str
+ 
+     @field_validator("email")
+</pre><h3>Mutant 54</h3><pre>--- auth/schemas.py
++++ auth/schemas.py
+@@ -7,7 +7,7 @@
+     company: str | None = None
+     password: str
+ 
+-    @field_validator("email")
++    @field_validator("XXemailXX")
+     @classmethod
+     def normalize_email(cls, v: str) -> str:
+         v = v.strip().lower()
+</pre><h3>Mutant 55</h3><pre>--- auth/schemas.py
++++ auth/schemas.py
+@@ -7,7 +7,6 @@
+     company: str | None = None
+     password: str
+ 
+-    @field_validator("email")
+     @classmethod
+     def normalize_email(cls, v: str) -> str:
+         v = v.strip().lower()
+</pre><h3>Mutant 56</h3><pre>--- auth/schemas.py
++++ auth/schemas.py
+@@ -8,7 +8,7 @@
+     password: str
+ 
+     @field_validator("email")
+-    @classmethod
++
+     def normalize_email(cls, v: str) -> str:
+         v = v.strip().lower()
+         if "@" not in v or "." not in v.split("@")[-1]:
+</pre><h3>Mutant 57</h3><pre>--- auth/schemas.py
++++ auth/schemas.py
+@@ -10,7 +10,7 @@
+     @field_validator("email")
+     @classmethod
+     def normalize_email(cls, v: str) -> str:
+-        v = v.strip().lower()
++        v = None
+         if "@" not in v or "." not in v.split("@")[-1]:
+             raise ValueError("invalid email address")
+         return v
+</pre><h3>Mutant 58</h3><pre>--- auth/schemas.py
++++ auth/schemas.py
+@@ -11,7 +11,7 @@
+     @classmethod
+     def normalize_email(cls, v: str) -> str:
+         v = v.strip().lower()
+-        if "@" not in v or "." not in v.split("@")[-1]:
++        if "XX@XX" not in v or "." not in v.split("@")[-1]:
+             raise ValueError("invalid email address")
+         return v
+ 
+</pre><h3>Mutant 59</h3><pre>--- auth/schemas.py
++++ auth/schemas.py
+@@ -11,7 +11,7 @@
+     @classmethod
+     def normalize_email(cls, v: str) -> str:
+         v = v.strip().lower()
+-        if "@" not in v or "." not in v.split("@")[-1]:
++        if "@"  in v or "." not in v.split("@")[-1]:
+             raise ValueError("invalid email address")
+         return v
+ 
+</pre><h3>Mutant 60</h3><pre>--- auth/schemas.py
++++ auth/schemas.py
+@@ -11,7 +11,7 @@
+     @classmethod
+     def normalize_email(cls, v: str) -> str:
+         v = v.strip().lower()
+-        if "@" not in v or "." not in v.split("@")[-1]:
++        if "@" not in v or "XX.XX" not in v.split("@")[-1]:
+             raise ValueError("invalid email address")
+         return v
+ 
+</pre><h3>Mutant 61</h3><pre>--- auth/schemas.py
++++ auth/schemas.py
+@@ -11,7 +11,7 @@
+     @classmethod
+     def normalize_email(cls, v: str) -> str:
+         v = v.strip().lower()
+-        if "@" not in v or "." not in v.split("@")[-1]:
++        if "@" not in v or "."  in v.split("@")[-1]:
+             raise ValueError("invalid email address")
+         return v
+ 
+</pre><h3>Mutant 62</h3><pre>--- auth/schemas.py
++++ auth/schemas.py
+@@ -11,7 +11,7 @@
+     @classmethod
+     def normalize_email(cls, v: str) -> str:
+         v = v.strip().lower()
+-        if "@" not in v or "." not in v.split("@")[-1]:
++        if "@" not in v or "." not in v.split("XX@XX")[-1]:
+             raise ValueError("invalid email address")
+         return v
+ 
+</pre><h3>Mutant 63</h3><pre>--- auth/schemas.py
++++ auth/schemas.py
+@@ -11,7 +11,7 @@
+     @classmethod
+     def normalize_email(cls, v: str) -> str:
+         v = v.strip().lower()
+-        if "@" not in v or "." not in v.split("@")[-1]:
++        if "@" not in v or "." not in v.split("@")[+1]:
+             raise ValueError("invalid email address")
+         return v
+ 
+</pre><h3>Mutant 64</h3><pre>--- auth/schemas.py
++++ auth/schemas.py
+@@ -11,7 +11,7 @@
+     @classmethod
+     def normalize_email(cls, v: str) -> str:
+         v = v.strip().lower()
+-        if "@" not in v or "." not in v.split("@")[-1]:
++        if "@" not in v or "." not in v.split("@")[-2]:
+             raise ValueError("invalid email address")
+         return v
+ 
+</pre><h3>Mutant 65</h3><pre>--- auth/schemas.py
++++ auth/schemas.py
+@@ -11,7 +11,7 @@
+     @classmethod
+     def normalize_email(cls, v: str) -> str:
+         v = v.strip().lower()
+-        if "@" not in v or "." not in v.split("@")[-1]:
++        if "@" not in v and "." not in v.split("@")[-1]:
+             raise ValueError("invalid email address")
+         return v
+ 
+</pre><h3>Mutant 66</h3><pre>--- auth/schemas.py
++++ auth/schemas.py
+@@ -12,7 +12,7 @@
+     def normalize_email(cls, v: str) -> str:
+         v = v.strip().lower()
+         if "@" not in v or "." not in v.split("@")[-1]:
+-            raise ValueError("invalid email address")
++            raise ValueError("XXinvalid email addressXX")
+         return v
+ 
+     @field_validator("password")
+</pre><h3>Mutant 67</h3><pre>--- auth/schemas.py
++++ auth/schemas.py
+@@ -15,7 +15,7 @@
+             raise ValueError("invalid email address")
+         return v
+ 
+-    @field_validator("password")
++    @field_validator("XXpasswordXX")
+     @classmethod
+     def check_password_length(cls, v: str) -> str:
+         if len(v) < 8:
+</pre><h3>Mutant 68</h3><pre>--- auth/schemas.py
++++ auth/schemas.py
+@@ -15,7 +15,6 @@
+             raise ValueError("invalid email address")
+         return v
+ 
+-    @field_validator("password")
+     @classmethod
+     def check_password_length(cls, v: str) -> str:
+         if len(v) < 8:
+</pre><h3>Mutant 69</h3><pre>--- auth/schemas.py
++++ auth/schemas.py
+@@ -16,7 +16,7 @@
+         return v
+ 
+     @field_validator("password")
+-    @classmethod
++
+     def check_password_length(cls, v: str) -> str:
+         if len(v) < 8:
+             raise ValueError("password must be at least 8 characters")
+</pre><h3>Mutant 70</h3><pre>--- auth/schemas.py
++++ auth/schemas.py
+@@ -18,7 +18,7 @@
+     @field_validator("password")
+     @classmethod
+     def check_password_length(cls, v: str) -> str:
+-        if len(v) < 8:
++        if len(v) <= 8:
+             raise ValueError("password must be at least 8 characters")
+         return v
+ 
+</pre><h3>Mutant 71</h3><pre>--- auth/schemas.py
++++ auth/schemas.py
+@@ -18,7 +18,7 @@
+     @field_validator("password")
+     @classmethod
+     def check_password_length(cls, v: str) -> str:
+-        if len(v) < 8:
++        if len(v) < 9:
+             raise ValueError("password must be at least 8 characters")
+         return v
+ 
+</pre><h3>Mutant 72</h3><pre>--- auth/schemas.py
++++ auth/schemas.py
+@@ -19,7 +19,7 @@
+     @classmethod
+     def check_password_length(cls, v: str) -> str:
+         if len(v) < 8:
+-            raise ValueError("password must be at least 8 characters")
++            raise ValueError("XXpassword must be at least 8 charactersXX")
+         return v
+ 
+ 
+</pre><h3>Mutant 73</h3><pre>--- auth/schemas.py
++++ auth/schemas.py
+@@ -27,7 +27,7 @@
+     email: str
+     password: str
+ 
+-    @field_validator("email")
++    @field_validator("XXemailXX")
+     @classmethod
+     def normalize_email(cls, v: str) -> str:
+         return v.strip().lower()
+</pre><h3>Mutant 74</h3><pre>--- auth/schemas.py
++++ auth/schemas.py
+@@ -27,7 +27,6 @@
+     email: str
+     password: str
+ 
+-    @field_validator("email")
+     @classmethod
+     def normalize_email(cls, v: str) -> str:
+         return v.strip().lower()
+</pre><h3>Mutant 75</h3><pre>--- auth/schemas.py
++++ auth/schemas.py
+@@ -28,7 +28,7 @@
+     password: str
+ 
+     @field_validator("email")
+-    @classmethod
++
+     def normalize_email(cls, v: str) -> str:
+         return v.strip().lower()
+ 
+</pre><h3>Mutant 76</h3><pre>--- auth/schemas.py
++++ auth/schemas.py
+@@ -37,7 +37,7 @@
+     id: int
+     name: str
+     email: str
+-    company: str | None = None
++    company: str & None = None
+ 
+     model_config = {"from_attributes": True}
+ 
+</pre><h3>Mutant 77</h3><pre>--- auth/schemas.py
++++ auth/schemas.py
+@@ -37,7 +37,7 @@
+     id: int
+     name: str
+     email: str
+-    company: str | None = None
++    company: str | None = ""
+ 
+     model_config = {"from_attributes": True}
+ 
+</pre><h3>Mutant 78</h3><pre>--- auth/schemas.py
++++ auth/schemas.py
+@@ -39,7 +39,7 @@
+     email: str
+     company: str | None = None
+ 
+-    model_config = {"from_attributes": True}
++    model_config = {"XXfrom_attributesXX": True}
+ 
+ 
+ class TokenResponse(BaseModel):
+</pre><h3>Mutant 79</h3><pre>--- auth/schemas.py
++++ auth/schemas.py
+@@ -39,7 +39,7 @@
+     email: str
+     company: str | None = None
+ 
+-    model_config = {"from_attributes": True}
++    model_config = {"from_attributes": False}
+ 
+ 
+ class TokenResponse(BaseModel):
+</pre><h3>Mutant 80</h3><pre>--- auth/schemas.py
++++ auth/schemas.py
+@@ -39,7 +39,7 @@
+     email: str
+     company: str | None = None
+ 
+-    model_config = {"from_attributes": True}
++    model_config = None
+ 
+ 
+ class TokenResponse(BaseModel):
+</pre><h3>Mutant 81</h3><pre>--- auth/schemas.py
++++ auth/schemas.py
+@@ -44,6 +44,6 @@
+ 
+ class TokenResponse(BaseModel):
+     access_token: str
+-    token_type: str = "bearer"
++    token_type: str = "XXbearerXX"
+     user: UserOut
+ 
+</pre><h3>Mutant 82</h3><pre>--- auth/schemas.py
++++ auth/schemas.py
+@@ -44,6 +44,6 @@
+ 
+ class TokenResponse(BaseModel):
+     access_token: str
+-    token_type: str = "bearer"
++    token_type: str = None
+     user: UserOut
+ 
+</pre></body></html>

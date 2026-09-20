@@ -1,0 +1,78 @@
+<html><body><h1>app/pipeline/utils.py</h1>Killed 0 out of 7 mutants<h2>Survived</h2>Survived mutation testing. These mutants show holes in your test suite.<h3>Mutant 232</h3><pre>--- app/pipeline/utils.py
++++ app/pipeline/utils.py
+@@ -14,7 +14,7 @@
+ from pathlib import Path
+ 
+ # Backend/semantic_search
+-SEMANTIC_SEARCH_DIR = Path(__file__).resolve().parents[2] / "semantic_search"
++SEMANTIC_SEARCH_DIR = Path(__file__).resolve().parents[3] / "semantic_search"
+ 
+ 
+ def add_semantic_search_to_path():
+</pre><h3>Mutant 233</h3><pre>--- app/pipeline/utils.py
++++ app/pipeline/utils.py
+@@ -14,7 +14,7 @@
+ from pathlib import Path
+ 
+ # Backend/semantic_search
+-SEMANTIC_SEARCH_DIR = Path(__file__).resolve().parents[2] / "semantic_search"
++SEMANTIC_SEARCH_DIR = Path(__file__).resolve().parents[2] * "semantic_search"
+ 
+ 
+ def add_semantic_search_to_path():
+</pre><h3>Mutant 234</h3><pre>--- app/pipeline/utils.py
++++ app/pipeline/utils.py
+@@ -14,7 +14,7 @@
+ from pathlib import Path
+ 
+ # Backend/semantic_search
+-SEMANTIC_SEARCH_DIR = Path(__file__).resolve().parents[2] / "semantic_search"
++SEMANTIC_SEARCH_DIR = Path(__file__).resolve().parents[2] / "XXsemantic_searchXX"
+ 
+ 
+ def add_semantic_search_to_path():
+</pre><h3>Mutant 235</h3><pre>--- app/pipeline/utils.py
++++ app/pipeline/utils.py
+@@ -14,7 +14,7 @@
+ from pathlib import Path
+ 
+ # Backend/semantic_search
+-SEMANTIC_SEARCH_DIR = Path(__file__).resolve().parents[2] / "semantic_search"
++SEMANTIC_SEARCH_DIR = None
+ 
+ 
+ def add_semantic_search_to_path():
+</pre><h3>Mutant 236</h3><pre>--- app/pipeline/utils.py
++++ app/pipeline/utils.py
+@@ -18,7 +18,7 @@
+ 
+ 
+ def add_semantic_search_to_path():
+-    path_str = str(SEMANTIC_SEARCH_DIR)
++    path_str = None
+     if path_str not in sys.path:
+         sys.path.insert(0, path_str)
+ 
+</pre><h3>Mutant 237</h3><pre>--- app/pipeline/utils.py
++++ app/pipeline/utils.py
+@@ -19,7 +19,7 @@
+ 
+ def add_semantic_search_to_path():
+     path_str = str(SEMANTIC_SEARCH_DIR)
+-    if path_str not in sys.path:
++    if path_str  in sys.path:
+         sys.path.insert(0, path_str)
+ 
+ 
+</pre><h3>Mutant 238</h3><pre>--- app/pipeline/utils.py
++++ app/pipeline/utils.py
+@@ -20,7 +20,7 @@
+ def add_semantic_search_to_path():
+     path_str = str(SEMANTIC_SEARCH_DIR)
+     if path_str not in sys.path:
+-        sys.path.insert(0, path_str)
++        sys.path.insert(1, path_str)
+ 
+ 
+ def embed_text(text: str):
+</pre></body></html>

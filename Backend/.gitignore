@@ -4,3 +4,6 @@ Backend/venv/
 __pycache__/
 .DS_Store
 auth/auth.db
+
+htmlcov/
+.coverage
