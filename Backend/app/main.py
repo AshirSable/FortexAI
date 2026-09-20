@@ -1,3 +1,4 @@
+import logging
 import time
 
 from auth.database import init_db
@@ -11,7 +12,13 @@ from app.pipeline.autoencoder import AutoEncoderPipeline
 from app.pipeline.bert import EnsembleBERTPipeline
 from app.pipeline.llm_judge import LLM_JudgePipeline
 from app.pipeline.semantic_search import SemanticSearchPipeline
-from app.type_store import PhaseInput, Verdict
+from app.type_store import Phase, PhaseInput, Verdict
+
+logger = logging.getLogger(__name__)
+
+# a verdict from autoencoder / bert / llm_judge must reach this confidence
+# before it is written back into the semantic search index
+CONFIRM_CONFIDENCE_THRESHOLD = 0.90
 
 app = FastAPI()
 
@@ -19,6 +26,7 @@ app = FastAPI()
 # autoencoder and bert stages load a model into memory, so we don't want to
 # reload them on every call to /screen.
 detection_pipeline: Pipeline | None = None
+semantic_search_phase: SemanticSearchPipeline | None = None
 
 app.add_middleware(
     CORSMiddleware,
@@ -34,9 +42,13 @@ def on_startup():
     init_db()
 
     global detection_pipeline
+    # kept as its own reference so /screen can write confirmed verdicts back
+    # into its index via .confirm()
+    global semantic_search_phase
+    semantic_search_phase = SemanticSearchPipeline()
     detection_pipeline = Pipeline(
         [
-            SemanticSearchPipeline(),
+            semantic_search_phase,
             AutoEncoderPipeline(),
             EnsembleBERTPipeline(),
             LLM_JudgePipeline(),
@@ -84,9 +96,25 @@ def screen(request: ScreenRequest):
         )
 
     success = result.unwrap()
-    return ScreenResponse(
+    response = ScreenResponse(
         verdict=success.verdict.name,
         phase=success.at_phase.name,
         confidence=success.confidence,
         latency_ms=success.latency_ms,
     )
+
+    # self-improving write-back: only for later stages (semantic search already
+    # has this prompt) and only when that stage was confident. Never allowed to
+    # break or delay the response, so failures are just logged.
+    if (
+        semantic_search_phase is not None
+        and success.at_phase != Phase.semantic_search
+        and success.confidence >= CONFIRM_CONFIDENCE_THRESHOLD
+    ):
+        try:
+            label = "attack" if success.verdict == Verdict.attack else "benign"
+            semantic_search_phase.confirm(request.prompt, label)
+        except Exception as e:
+            logger.warning("semantic search write-back failed: %s", e)
+
+    return response
