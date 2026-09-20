@@ -1,20 +1,21 @@
 from pathlib import Path
-from typing import Optional, Self
+from typing import Optional, Self, Literal
 
 import torch
 
 
 class StandardScaler:
-    def __init__(self, epsilon: float = 1e-6):
+    def __init__(self, epsilon: float = 1e-6, device: Literal["cuda", "cpu"] = "cpu"):
         self.mean: Optional[torch.Tensor] = None
         self.std: Optional[torch.Tensor] = None
         self.epsilon: float = epsilon
+        self.device: Literal["cuda", "cpu"] = device
 
     def __set_mean(self, mean: torch.Tensor):
-        self.mean = mean
+        self.mean = mean.to(self.device)
 
     def __set_std(self, std: torch.Tensor):
-        self.std = std
+        self.std = std.to(self.device)
 
     def fit(self, X: torch.Tensor) -> Self:
 
@@ -30,9 +31,9 @@ class StandardScaler:
         torch.save({"mean": self.mean, "std": self.std, "epsilon": self.epsilon}, path)
 
     @classmethod
-    def load(cls, path: Path | str) -> Self:
+    def load(cls, path: Path | str, device: Literal["cuda", "cpu"] = "cpu") -> Self:
         loaded = torch.load(path)
-        cl_ = cls(epsilon=loaded["epsilon"])
+        cl_ = cls(epsilon=loaded["epsilon"], device=device)
 
         cl_.__set_mean(loaded["mean"])
         cl_.__set_std(loaded["std"])

@@ -44,8 +44,8 @@ from app.type_store import (
 from app.type_store._error import InferenceError, ModelUnavailableError, PhaseError
 
 # the only autoencoder checkpoint currently in the repo (added 2026-09-17).
-MODEL_PATH = MODEL_DIRECTORY_RELEASED / "NormalityAE_1788973962.4063935.pt"
-
+MODEL_PATH = MODEL_DIRECTORY_RELEASED / "NormalityAE_instance_1789824349.7443838"
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 # the StandardScaler (per-feature mean/std) fit on the training data before
 # training this exact checkpoint - see ml_factory/training_scripts/scripts_normality_ae.py,
 # which standardizes the 777-dim embedding+structural vector before it ever
@@ -59,11 +59,16 @@ SCALER_PATH = MODEL_DIRECTORY_RELEASED / "SCALER_FILE_FOR_FULL_SEED_3123.pt"
 # weight shapes alone (it only affects the forward pass, not layer sizes).
 EMBEDDING_DIM = 768
 AE_INPUT_DIM = EMBEDDING_DIM + 9
-AE_ARGS = Args(ae_bottleneck=64, n_experts=8, expert_k=2)
+AE_ARGS = Args(ae_bottleneck=100, n_experts=8, expert_k=4)
 
-# GUESSED, not calibrated - see module docstring.
-LOW_ERROR_THRESHOLD = 0.05  # reconstruction error at or below this -> benign # BUG: Needs to be calibrated
-HIGH_ERROR_THRESHOLD = 0.15  # reconstruction error at or above this -> attack # BUG: Needs to be calibrated
+
+#  One of calibrated values, FIX: only one threshold value
+LOW_ERROR_THRESHOLD = (
+    1.55361437797546  # reconstruction error at or below this -> benign #
+)
+HIGH_ERROR_THRESHOLD = (
+    1.55361437797546  # reconstruction error at or above this -> attack #
+)
 # anything in between -> undetermined, pass to the next stage
 
 # TODO: Need to calibrate the low error and high error threshold for this model
@@ -92,11 +97,12 @@ class AutoEncoderPipeline(PipelinePhase):
         self.low_error_threshold = low_error_threshold
         self.high_error_threshold = high_error_threshold
         self.structural_extractor = StructuralExtractor()
-        self.standard_scaler = StandardScaler.load(scaler_path)
+        self.standard_scaler = StandardScaler.load(scaler_path, device=DEVICE)
 
-        self.model = NormalityAE(input_dim=AE_INPUT_DIM, args=AE_ARGS)
-        checkpoint = torch.load(model_path, map_location="cpu", weights_only=False)
+        self.model = NormalityAE(input_dim=AE_INPUT_DIM, args=AE_ARGS, _mode_2=True)
+        checkpoint = torch.load(model_path, map_location=DEVICE, weights_only=False)
         self.model.load_state_dict(checkpoint["model"])
+        self.model.to(DEVICE)
         self.model.eval()
 
     def build_input_vector(self, text: str, embedding) -> torch.Tensor:
@@ -110,7 +116,7 @@ class AutoEncoderPipeline(PipelinePhase):
         )
         full_vector = np.concatenate([embedding, structural])
 
-        full_vector = torch.from_numpy(full_vector)
+        full_vector = torch.from_numpy(full_vector).to(DEVICE)
         full_vector = self.standard_scaler.transform(full_vector)
 
         # model expects a batch, so add a batch dimension of size 1
