@@ -44,14 +44,14 @@ from app.type_store._error import InferenceError, ModelUnavailableError, PhaseEr
 from ml_factory import MODEL_DIRECTORY_RELEASED
 
 MODEL_DIR = MODEL_DIRECTORY_RELEASED
-FALLBACK_TOKENIZER_NAME = "google/bert_uncased_L-2_H-128_A-2"
+FALLBACK_TOKENIZER_NAME = "google/bert_uncased_L-4_H-256_A-4"
 
 # label 1 = attack, label 0 = benign, matching how the model was trained
 # (see ml_factory/datasets/test.py's f1_score(..., pos_label=1) for the attack class)
 ATTACK_LABEL_INDEX = 1
 
 # below this confidence in either direction, the stage has no opinion
-DEFAULT_CONFIDENCE_THRESHOLD = 0.6
+DEFAULT_CONFIDENCE_THRESHOLD = 0.25
 
 
 class EnsembleBERTPipeline(PipelinePhase):
