@@ -6,6 +6,10 @@ from auth.database import init_db
 from auth.router import router as auth_router
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from gateway import state as gateway_state
+from gateway.keys import router as keys_router
+from gateway.metrics import router as metrics_router
+from gateway.screen import router as screen_router
 from pydantic import BaseModel
 
 from app.pipeline import Pipeline
@@ -14,10 +18,6 @@ from app.pipeline.bert import EnsembleBERTPipeline
 from app.pipeline.llm_judge import LLM_JudgePipeline
 from app.pipeline.semantic_search import SemanticSearchPipeline
 from app.type_store import Phase, PhaseInput, Verdict
-from gateway import state as gateway_state
-from gateway.keys import router as keys_router
-from gateway.metrics import router as metrics_router
-from gateway.screen import router as screen_router
 
 logger = logging.getLogger(__name__)
 
@@ -94,7 +94,10 @@ app.include_router(metrics_router)
 
 @app.get("/health")
 def health():
-    return {"active_stages": active_stages, "pipeline_ready": detection_pipeline is not None}
+    return {
+        "active_stages": active_stages,
+        "pipeline_ready": detection_pipeline is not None,
+    }
 
 
 @app.get("/")

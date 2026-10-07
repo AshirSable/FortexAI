@@ -1,6 +1,7 @@
 import time
-import polars as pl
 from pathlib import Path
+
+import polars as pl
 
 from app.main import CONFIRM_CONFIDENCE_THRESHOLD
 from app.pipeline.autoencoder import AutoEncoderPipeline
