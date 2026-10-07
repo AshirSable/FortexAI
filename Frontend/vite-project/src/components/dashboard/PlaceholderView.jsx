@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../../context/auth-context';
+import UsageView from './UsageView';
 import './PlaceholderView.css';
 
 const DOCS_CARDS = [
@@ -43,28 +44,7 @@ export default function PlaceholderView({ kind }) {
     );
   }
 
-  if (kind === 'usage') {
-    return (
-      <div>
-        <div className="placeholder-intro">Track how much of your plan's monthly allowance has been used.</div>
-        <div className="placeholder-card" style={{ padding: 26, marginBottom: 18 }}>
-          <div className="usage-header">
-            <div className="placeholder-card-title" style={{ marginBottom: 0 }}>Prompts screened this cycle</div>
-            <div className="usage-count">512,300 / 1,000,000</div>
-          </div>
-          <div className="usage-bar-track">
-            <div className="usage-bar-fill" style={{ width: '51.2%' }} />
-          </div>
-          <div className="usage-footnote">Resets in 6 days &middot; Pro plan</div>
-        </div>
-        <div className="usage-stats-grid">
-          <div className="placeholder-card"><div className="stat-label">Rate limit</div><div className="stat-value">500 req/min</div></div>
-          <div className="placeholder-card"><div className="stat-label">Active API keys</div><div className="stat-value">2</div></div>
-          <div className="placeholder-card"><div className="stat-label">Vector DB size</div><div className="stat-value">2.4 GB</div></div>
-        </div>
-      </div>
-    );
-  }
+  if (kind === 'usage') return <UsageView />;
 
   if (kind === 'billing') {
     return (

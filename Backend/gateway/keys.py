@@ -10,6 +10,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from gateway.models import ApiKey
+from gateway.ratelimit import get_usage
 
 router = APIRouter(prefix="/keys", tags=["keys"])
 
@@ -77,7 +78,7 @@ def list_keys(db: Session = Depends(get_db), user: User = Depends(get_current_us
         .order_by(ApiKey.created_at.desc(), ApiKey.id.desc())
         .all()
     )
-    return [key_to_dict(k) for k in keys]
+    return [{**key_to_dict(k), "usage": get_usage(db, k.id)} for k in keys]
 
 
 @router.patch("/{key_id}/status")

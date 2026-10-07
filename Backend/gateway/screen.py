@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 from gateway import state
 from gateway.keys import hash_key
 from gateway.models import ApiKey, ScreenEvent, utc_now
+from gateway.ratelimit import check_rate_limit
 
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["screen"])
@@ -87,6 +88,7 @@ def screen_prompt(
     db: Session = Depends(get_db),
 ):
     key = find_key(db, authorization)
+    check_rate_limit(db, key.id)
 
     if key.status == "stopped":
         # switch is OFF: let it through without running detection
