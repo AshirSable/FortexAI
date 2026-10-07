@@ -1,9 +1,9 @@
 from pathlib import Path
 
+import polars as pl
 from ml_factory import DATA_RAW_DIR
 from ml_factory.datasets.sampler import SplitSampler
 from ml_factory.utils import give_id_to_data
-import polars as pl
 
 BENCHMARK_RESULTS = Path(__file__).parent / "bench_mark_results"
 

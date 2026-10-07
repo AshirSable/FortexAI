@@ -8,6 +8,7 @@ import asyncio
 import warnings
 from pathlib import Path
 
+import numpy as np
 import polars as pl
 import torch
 from datasets.utils.py_utils import Literal
@@ -21,7 +22,6 @@ from sklearn.metrics import (
     recall_score,
     roc_auc_score,
 )
-import numpy as np
 from torch import nn
 from torch.utils.data import DataLoader, Subset
 from transformers import AutoTokenizer

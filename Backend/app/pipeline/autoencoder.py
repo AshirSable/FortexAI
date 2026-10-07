@@ -26,7 +26,7 @@ import numpy as np
 import torch
 from ml_factory import MODEL_DIRECTORY_RELEASED
 from ml_factory.models import Args
-from ml_factory.models.autoencoder import NormalityAE
+from ml_factory.models.autoencoder import BaseNormalAutoEncoder
 from ml_factory.utils.scaler import StandardScaler
 from ml_factory.utils.structural_extractor import StructuralExtractor
 
@@ -49,7 +49,7 @@ from app.type_store._error import InferenceError, ModelUnavailableError, PhaseEr
 MODEL_PATH = Path(
     os.environ.get(
         "FORTEX_AE_MODEL",
-        MODEL_DIRECTORY_RELEASED / "NormalityAE_1788973962.4063935.pt",
+        MODEL_DIRECTORY_RELEASED / "BaseNormalAutoEncoder_instance_1789824192.1090372",
     )
 )
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
@@ -78,8 +78,8 @@ AE_ARGS = Args(ae_bottleneck=100, n_experts=8, expert_k=4)
 #  One of calibrated values,
 
 # Calibrated Values
-LOW_ERROR_THRESHOLD = 1.0069705247879028  # reconstruction error at or below this -> benign #  # Mean Reconstruction loss for Benign data in OOD Validation Dataset
-HIGH_ERROR_THRESHOLD = 2.154469  # reconstruction error at or above this -> attack #  # Threshold with the lowes TPR ~ 0.502 (Detecting Attack Correctly) and Highest TNR ~ 0.985 (Detecting Benign)
+LOW_ERROR_THRESHOLD = 1.00719606876373  # reconstruction error at or below this -> benign #  # Mean Reconstruction loss for Benign data in OOD Validation Dataset
+HIGH_ERROR_THRESHOLD = 1.54340934753418  # reconstruction error at or above this -> attack #  # Threshold with the lowes TPR ~ 0.502 (Detecting Attack Correctly) and Highest TNR ~ 0.985 (Detecting Benign)
 # anything in between -> undetermined, pass to the next stage
 
 # TODO: Need to calibrate the low error and high error threshold for this model
@@ -110,7 +110,7 @@ class AutoEncoderPipeline(PipelinePhase):
         self.structural_extractor = StructuralExtractor()
         self.standard_scaler = StandardScaler.load(scaler_path, device=DEVICE)
 
-        self.model = NormalityAE(input_dim=AE_INPUT_DIM, args=AE_ARGS, _mode_2=True)
+        self.model = BaseNormalAutoEncoder(input_dim=AE_INPUT_DIM, args=AE_ARGS)
         checkpoint = torch.load(model_path, map_location=DEVICE, weights_only=False)
         self.model.load_state_dict(checkpoint["model"])
         self.model.to(DEVICE)

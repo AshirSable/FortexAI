@@ -10,7 +10,16 @@ import numpy as np
 
 from app.pipeline import PipelinePhase
 from app.pipeline.utils import add_semantic_search_to_path, embed_text
-from app.type_store import Err, Ok, Phase, PhaseInput, Result, SuccessForReview, SuccessReturn, Verdict
+from app.type_store import (
+    Err,
+    Ok,
+    Phase,
+    PhaseInput,
+    Result,
+    SuccessForReview,
+    SuccessReturn,
+    Verdict,
+)
 from app.type_store._error import InferenceError, PhaseError
 
 add_semantic_search_to_path()
@@ -41,17 +50,29 @@ class SemanticSearchPipeline(PipelinePhase):
             # stage has no opinion. Let the next stage (autoencoder) decide.
             verdict = Verdict.undetermined
 
-        return Ok(SuccessReturn(verdict=verdict, at_phase=self.phase, confidence=similarity))
+        return Ok(
+            SuccessReturn(verdict=verdict, at_phase=self.phase, confidence=similarity)
+        )
 
-    def verdict_with_data(self, input: PhaseInput) -> Result[SuccessForReview, PhaseError]:
+    def verdict_with_data(
+        self, input: PhaseInput
+    ) -> Result[SuccessForReview, PhaseError]:
         result = self.verdict(input)
         if result.is_err():
             return result
 
         text = input.require_text()
-        embedding = input.embedding if input.embedding is not None else np.array(embed_text(text))
+        embedding = (
+            input.embedding
+            if input.embedding is not None
+            else np.array(embed_text(text))
+        )
 
-        return Ok(SuccessForReview(success_return=result.unwrap(), embedding=embedding, text=text))
+        return Ok(
+            SuccessForReview(
+                success_return=result.unwrap(), embedding=embedding, text=text
+            )
+        )
 
     def confirm(self, text: str, label: str):
         """
