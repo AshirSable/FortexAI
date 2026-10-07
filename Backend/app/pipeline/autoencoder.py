@@ -19,6 +19,7 @@ IMPORTANT / GUESSED PIECES (see summary for full detail):
   training data, and it's what AE_INPUT_DIM/AE_ARGS below assume).
 """
 
+import os
 from pathlib import Path
 
 import numpy as np
@@ -44,14 +45,26 @@ from app.type_store import (
 from app.type_store._error import InferenceError, ModelUnavailableError, PhaseError
 
 # the only autoencoder checkpoint currently in the repo (added 2026-09-17).
-MODEL_PATH = MODEL_DIRECTORY_RELEASED / "NormalityAE_instance_1789824349.7443838"
+# Override with FORTEX_AE_MODEL to point at a different checkpoint without a code change.
+MODEL_PATH = Path(
+    os.environ.get(
+        "FORTEX_AE_MODEL",
+        MODEL_DIRECTORY_RELEASED / "NormalityAE_1788973962.4063935.pt",
+    )
+)
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 # the StandardScaler (per-feature mean/std) fit on the training data before
 # training this exact checkpoint - see ml_factory/training_scripts/scripts_normality_ae.py,
 # which standardizes the 777-dim embedding+structural vector before it ever
 # reaches the model. Without this, reconstruction error is dominated by the
 # raw (unstandardized) structural features and is meaningless.
-SCALER_PATH = MODEL_DIRECTORY_RELEASED / "SCALER_FILE_FOR_FULL_SEED_3123.pt"
+# Override with FORTEX_AE_SCALER.
+SCALER_PATH = Path(
+    os.environ.get(
+        "FORTEX_AE_SCALER",
+        MODEL_DIRECTORY_RELEASED / "SCALER_FILE_FOR_FULL_SEED_3123.pt",
+    )
+)
 
 # matches the checkpoint's tensor shapes exactly (see summary): a 768-dim
 # embedding plus 9 structural features, 8 experts, top-2 bottleneck of 64.

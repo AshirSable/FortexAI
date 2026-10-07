@@ -1,4 +1,5 @@
 import logging
+import os
 import time
 
 from auth.database import init_db
@@ -13,6 +14,10 @@ from app.pipeline.bert import EnsembleBERTPipeline
 from app.pipeline.llm_judge import LLM_JudgePipeline
 from app.pipeline.semantic_search import SemanticSearchPipeline
 from app.type_store import Phase, PhaseInput, Verdict
+from gateway import state as gateway_state
+from gateway.keys import router as keys_router
+from gateway.metrics import router as metrics_router
+from gateway.screen import router as screen_router
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +32,7 @@ app = FastAPI()
 # reload them on every call to /screen.
 detection_pipeline: Pipeline | None = None
 semantic_search_phase: SemanticSearchPipeline | None = None
+active_stages: list[str] = []
 
 app.add_middleware(
     CORSMiddleware,
@@ -45,18 +51,50 @@ def on_startup():
     # kept as its own reference so /screen can write confirmed verdicts back
     # into its index via .confirm()
     global semantic_search_phase
-    semantic_search_phase = SemanticSearchPipeline()
-    detection_pipeline = Pipeline(
-        [
-            semantic_search_phase,
-            AutoEncoderPipeline(),
-            EnsembleBERTPipeline(),
-            LLM_JudgePipeline(),
-        ]
-    )
+    # each stage is built on its own: a stage whose model files are missing or
+    # broken is skipped with a warning instead of taking down auth, keys and
+    # metrics along with it.
+    stage_builders = [
+        ("semantic_search", SemanticSearchPipeline),
+        ("autoencoder", AutoEncoderPipeline),
+        ("bert", EnsembleBERTPipeline),
+    ]
+    # stage 4 can be left out with FORTEX_ENABLE_LLM_JUDGE=0 (default: on)
+    if os.environ.get("FORTEX_ENABLE_LLM_JUDGE", "1") != "0":
+        stage_builders.append(("llm_judge", LLM_JudgePipeline))
+
+    phases = []
+    active_stages.clear()
+    for name, builder in stage_builders:
+        try:
+            phase = builder()
+        except Exception as e:
+            logger.warning("stage '%s' not loaded, running without it: %s", name, e)
+            continue
+        phases.append(phase)
+        active_stages.append(name)
+        if name == "semantic_search":
+            semantic_search_phase = phase
+
+    if not phases:
+        logger.error("no detection stages loaded - screening endpoints will return 503")
+        return
+    detection_pipeline = Pipeline(phases)
+
+    # let the /v1/screen gateway use the same pipeline
+    gateway_state.pipeline = detection_pipeline
+    gateway_state.semantic_search = semantic_search_phase
 
 
 app.include_router(auth_router)
+app.include_router(keys_router)
+app.include_router(screen_router)
+app.include_router(metrics_router)
+
+
+@app.get("/health")
+def health():
+    return {"active_stages": active_stages, "pipeline_ready": detection_pipeline is not None}
 
 
 @app.get("/")

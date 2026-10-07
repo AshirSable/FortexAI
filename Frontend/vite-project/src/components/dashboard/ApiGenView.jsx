@@ -1,34 +1,57 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { useAuth } from '../../context/auth-context';
+import * as gateway from '../../api/gateway';
 import { useToast } from '../ToastContext';
 import './ApiGenView.css';
 
-const INITIAL_KEYS = [
-  { id: 'k1', name: 'Production', key: 'ftx_live_8f2a9c4e1b6d47a0', created: 'Jun 2, 2026', lastUsed: '3 min ago', status: 'active' },
-  { id: 'k2', name: 'Staging', key: 'ftx_test_3c7e91b0d5f2468a', created: 'May 14, 2026', lastUsed: '2 days ago', status: 'active' },
-];
+// "3 min ago", "2 days ago", or "never"
+function timeAgo(iso) {
+  if (!iso) return 'never';
+  const seconds = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000);
+  if (seconds < 60) return 'just now';
+  if (seconds < 3600) return Math.floor(seconds / 60) + ' min ago';
+  if (seconds < 86400) return Math.floor(seconds / 3600) + ' h ago';
+  return Math.floor(seconds / 86400) + ' days ago';
+}
 
-function maskKey(key) {
-  return key.slice(0, 9) + '••••••••' + key.slice(-4);
+function fmtDate(iso) {
+  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 export default function ApiGenView() {
   const showToast = useToast();
-  const [keys, setKeys] = useState(INITIAL_KEYS);
+  const { token } = useAuth();
+  const [keys, setKeys] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [keyNameInput, setKeyNameInput] = useState('');
   const [newlyGenerated, setNewlyGenerated] = useState(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
+  // load the keys from the backend
+  const loadKeys = useCallback(async () => {
+    try {
+      setKeys(await gateway.listKeys(token));
+    } catch (err) {
+      showToast(err.message, 'warn');
+    }
+  }, [token, showToast]);
+
+  useEffect(() => {
+    const first = setTimeout(loadKeys, 0);
+    return () => clearTimeout(first);
+  }, [loadKeys]);
+
   const openModal = () => { setShowModal(true); setKeyNameInput(''); setNewlyGenerated(null); };
   const closeModal = () => setShowModal(false);
 
-  const generateKey = () => {
-    const name = keyNameInput.trim() || 'New Key';
-    const rnd = Math.random().toString(16).slice(2, 18).padEnd(16, '0');
-    const key = 'ftx_live_' + rnd;
-    const entry = { id: 'k' + Date.now(), name, key, created: 'today', lastUsed: 'never', status: 'active' };
-    setKeys((k) => [entry, ...k]);
-    setNewlyGenerated(entry);
+  const generateKey = async () => {
+    try {
+      const created = await gateway.createKey(token, keyNameInput.trim() || 'New Key');
+      setNewlyGenerated(created); // holds the full key - shown only once
+      loadKeys();
+    } catch (err) {
+      showToast(err.message, 'warn');
+    }
   };
 
   const copyKey = (text) => {
@@ -36,15 +59,26 @@ export default function ApiGenView() {
     showToast('Copied to clipboard.', 'success');
   };
 
-  const toggleStatus = (id) => {
-    setKeys((k) => k.map((item) => (item.id === id ? { ...item, status: item.status === 'active' ? 'stopped' : 'active' } : item)));
-    showToast('Key status updated.', 'info');
+  const toggleStatus = async (key) => {
+    const next = key.status === 'active' ? 'stopped' : 'active';
+    try {
+      await gateway.setKeyStatus(token, key.id, next);
+      showToast(next === 'active' ? 'Detection is ON for this key.' : 'Detection is OFF for this key.', 'info');
+      loadKeys();
+    } catch (err) {
+      showToast(err.message, 'warn');
+    }
   };
 
-  const confirmDelete = () => {
-    setKeys((k) => k.filter((item) => item.id !== confirmDeleteId));
+  const confirmDelete = async () => {
+    try {
+      await gateway.deleteKey(token, confirmDeleteId);
+      showToast('API key deleted.', 'warn');
+    } catch (err) {
+      showToast(err.message, 'warn');
+    }
     setConfirmDeleteId(null);
-    showToast('API key deleted.', 'warn');
+    loadKeys();
   };
 
   const confirmKeyName = keys.find((k) => k.id === confirmDeleteId)?.name;
@@ -66,13 +100,12 @@ export default function ApiGenView() {
             <div className="apigen-table-row" key={k.id}>
               <div className="apigen-key-name">{k.name}</div>
               <div className="apigen-key-value">
-                {maskKey(k.key)}
-                <button className="copy-btn" onClick={() => copyKey(k.key)}>Copy</button>
+                {k.key_prefix}••••••••
               </div>
-              <div className="apigen-key-meta">{k.created}</div>
-              <div className="apigen-key-meta">{k.lastUsed}</div>
+              <div className="apigen-key-meta">{fmtDate(k.created_at)}</div>
+              <div className="apigen-key-meta">{timeAgo(k.last_used_at)}</div>
               <div className="apigen-status">
-                <div className="toggle" style={{ background: active ? '#4f7fff' : '#232b38' }} onClick={() => toggleStatus(k.id)}>
+                <div className="toggle" style={{ background: active ? '#4f7fff' : '#232b38' }} onClick={() => toggleStatus(k)}>
                   <div className="toggle-knob" style={{ left: active ? '19px' : '3px' }} />
                 </div>
                 <span style={{ color: active ? '#22c55e' : '#8b96a5', fontWeight: 600, fontSize: 12 }}>{active ? 'Active' : 'Stopped'}</span>
@@ -85,16 +118,18 @@ export default function ApiGenView() {
             </div>
           );
         })}
+        {keys.length === 0 && <div className="apigen-key-meta" style={{ padding: 20 }}>No API keys yet. Generate one to get started.</div>}
       </div>
 
       <div className="apigen-card">
         <div className="apigen-card-title">Quick integration</div>
-        <div className="apigen-card-desc">Same key, any environment &mdash; point the request at your active project's endpoint.</div>
+        <div className="apigen-card-desc">Send the prompt before it reaches your model. If the answer has <code>allowed: false</code>, do not forward it.</div>
         <div className="code-block">
           <div style={{ color: '#5b6472' }}># screen a prompt before it reaches your model</div>
-          <div>curl https://api.fortexai.dev/v1/screen \</div>
+          <div>curl {gateway.API_URL}/v1/screen \</div>
           <div>&nbsp;&nbsp;-H "Authorization: Bearer <span style={{ color: '#8fa9ff' }}>ftx_live_...</span>" \</div>
-          <div>&nbsp;&nbsp;-d '{'{"prompt": "summarize this document"}'}'</div>
+          <div>&nbsp;&nbsp;-H "Content-Type: application/json" \</div>
+          <div>&nbsp;&nbsp;-d '{'{"prompt": "summarize this document", "end_user": "user-123"}'}'</div>
         </div>
       </div>
 
